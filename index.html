@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сквозь время</title>
+    <title>Квест для брата</title>
     <style>
         body {
             margin: 0;
@@ -18,17 +18,15 @@
             height: 100vh;
         }
 
-        /* Рамка игры */
         #game-container {
             width: 90%;
             max-width: 900px;
             height: 80vh;
-            /* ФОН ПО УМОЛЧАНИЮ (если картинка не прогрузилась) */
-            background-color: #222; 
-            background-size: cover;
+            background-color: #333; /* Серый фон, если картинка не грузится */
+            background-size: cover; /* Картинка растягивается на весь экран */
             background-position: center;
             background-repeat: no-repeat;
-            border: 3px solid #ffd700; /* Золотая рамка */
+            border: 3px solid #ffd700;
             box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
             position: relative;
             border-radius: 20px;
@@ -36,153 +34,110 @@
             overflow: hidden;
         }
 
-        /* Блок с текстом внизу */
         .overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.6) 80%, transparent);
-            padding: 30px 20px 50px; /* Отступы */
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 30%, transparent);
+            padding: 40px 20px 60px;
             box-sizing: border-box;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            animation: slideUp 0.8s ease-out;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
+        h2 { margin: 0 0 10px 0; color: #ffd700; text-transform: uppercase; letter-spacing: 2px; }
+        p { font-size: 18px; margin-bottom: 20px; color: #eee; text-shadow: 1px 1px 2px black; }
 
-        h2 { 
-            margin: 0 0 15px 0; 
-            color: #ffd700; 
-            font-weight: 300;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-        }
-        
-        p { 
-            font-size: 18px; 
-            line-height: 1.6; 
-            max-width: 700px; 
-            margin-bottom: 20px;
-            color: #eee;
-        }
-
-        /* Стильное поле ввода */
         input {
             padding: 10px;
             font-size: 18px;
-            background: transparent;
+            background: rgba(255,255,255,0.1);
             border: none;
             border-bottom: 2px solid #ffd700;
             color: white;
             text-align: center;
             outline: none;
             width: 200px;
-            transition: 0.3s;
+            margin-bottom: 10px;
         }
-        input:focus { width: 300px; border-color: #fff; }
-        input::placeholder { color: #aaa; opacity: 0.7; }
 
-        /* Кнопка */
         button {
-            margin-top: 20px;
             padding: 12px 30px;
-            background: transparent;
-            color: #ffd700;
-            border: 1px solid #ffd700;
+            background: #ffd700;
+            color: #000;
+            border: none;
             border-radius: 30px;
             cursor: pointer;
+            font-weight: bold;
             font-size: 16px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
+            margin-top: 10px;
         }
-        button:hover { 
-            background-color: #ffd700; 
-            color: #000; 
-            box-shadow: 0 0 15px #ffd700;
-        }
+        button:hover { background-color: #ffec8b; }
 
-        /* Сообщение об ошибке/успехе (вместо Alert) */
-        #game-message {
-            height: 30px;
+        /* Сообщения (Ошибки и Подсказки) */
+        .game-message {
+            min-height: 25px;
             margin-top: 10px;
             font-size: 16px;
             font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.3s;
         }
-        .error-msg { color: #ff4757; }
-        .success-msg { color: #2ed573; }
 
-        /* Снег */
         .snowflake {
             position: absolute;
             top: -20px;
             color: white;
-            opacity: 0.8;
-            pointer-events: none; /* Чтобы снег не мешал кликать */
+            pointer-events: none;
             animation: fall linear infinite;
         }
         @keyframes fall { to { transform: translateY(90vh); } }
 
-        /* Управление сценами */
         .scene { display: none; width: 100%; height: 100%; }
         .active { display: block; }
-
     </style>
 </head>
 <body>
 
     <div id="game-container">
         
-        <!-- СЦЕНА 1: БУФФАЛО -->
+        <!-- СЦЕНА 1 -->
         <div id="scene-1" class="scene active">
             <div class="overlay">
                 <h2>Буффало. 23:55</h2>
-                <p>Ты смотришь на часы. В комнате тихо, только мерцает ёлка. <br>Вдруг под ней ты замечаешь странную тетрадь...</p>
-                <button onclick="nextScene(2)">Открыть тетрадь</button>
+                <p>В комнате тихо, только мерцает ёлка. <br>Под ней лежит странная тетрадь...</p>
+                <button onclick="nextScene(2)">Открыть</button>
             </div>
         </div>
 
-        <!-- СЦЕНА 2: КРАСНАЯ ПЛОЩАДЬ -->
+        <!-- СЦЕНА 2 -->
         <div id="scene-2" class="scene">
             <div class="overlay">
                 <h2>Воспоминание №1</h2>
-                <p>Мы на Красной площади 3 года назад. <br>Что осветило небо над Спасской башней в ту ночь?</p>
-                
-                <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
+                <p>Москва, 3 года назад. Что осветило небо над Кремлем?</p>
+                <input type="text" id="ans-2" placeholder="Ответ..." autocomplete="off">
                 <div id="msg-2" class="game-message"></div>
-                
-                <button onclick="checkAnswer(2, 'салют')">Записать</button>
+                <button onclick="checkAnswer(2, 'салют', 'Подсказка: Это громко и красиво!')">Проверить</button>
             </div>
         </div>
 
-        <!-- СЦЕНА 3: КРИТ -->
+        <!-- СЦЕНА 3 -->
         <div id="scene-3" class="scene">
             <div class="overlay">
                 <h2>Воспоминание №2</h2>
-                <p>Туман сгущается! Вспомни Крит. <br>Где мы прятались от дождя и смеялись до слёз?</p>
-                
-                <input type="text" id="ans-3" placeholder="Место..." autocomplete="off">
+                <p>Крит. Дождь. Где мы прятались?</p>
+                <input type="text" id="ans-3" placeholder="Ответ..." autocomplete="off">
                 <div id="msg-3" class="game-message"></div>
-
-                <button onclick="checkAnswer(3, 'таверна')">Разогнать туман</button>
+                <button onclick="checkAnswer(3, 'таверна', 'Подсказка: Там была еда...')">Проверить</button>
             </div>
         </div>
 
-        <!-- СЦЕНА 4: ФИНАЛ -->
+        <!-- СЦЕНА 4 -->
         <div id="scene-4" class="scene">
-            <div class="overlay" style="height: 100%; justify-content: center; background: rgba(0,0,0,0.8);">
-                <h1 style="color: #ffd700; font-size: 40px;">С Новым Годом!</h1>
-                <p>2025 — год, когда мы снова встретимся.</p>
-                <p style="margin-top: 30px; font-style: italic;">С любовью из России. ❤️</p>
+            <div class="overlay" style="height: 100%; justify-content: center;">
+                <h1 style="color: #ffd700;">С Новым Годом!</h1>
+                <p>Скоро увидимся.</p>
             </div>
         </div>
 
@@ -190,84 +145,60 @@
 
     <script>
         // ==========================================
-        // ВАЖНО: Имена файлов должны совпадать с тем, 
-        // что ты загрузил в GitHub!
-        // Если картинка лежит просто в репозитории, пиши просто '1.jpg'
+        // НАСТРОЙКА КАРТИНОК (ЧИТАЙ ВНИМАТЕЛЬНО!)
         // ==========================================
+        
+        // Если у тебя .jpg файлы:
+        const ext = '.jpg'; 
+        
+        // Если у тебя .png файлы (ПОМЕНЯЙ НА ЭТО):
+        // const ext = '.png';
+
+        // Если файлы называются большими буквами .JPG:
+        // const ext = '.JPG';
+
         const backgrounds = {
-            1: 'url("1.jpg")',   // Сцена Буффало
-            2: 'url("2.jpg")',   // Сцена Салют
-            3: 'url("3.jpg")',   // Сцена Крит
-            4: 'url("4.jpg")'    // Сцена Финал
+            1: 'url("1' + ext + '")',
+            2: 'url("2' + ext + '")',
+            3: 'url("3' + ext + '")',
+            4: 'url("4' + ext + '")'
         };
 
-        // Ставим первую картинку при загрузке
+        // Запуск первой картинки
         document.getElementById('game-container').style.backgroundImage = backgrounds[1];
 
-        // --- Функция смены сцен ---
-        function nextScene(sceneNum) {
-            // Скрываем все сцены
+        function nextScene(n) {
             document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
-            
-            // Показываем новую (с небольшой задержкой для красоты)
-            setTimeout(() => {
-                document.getElementById('scene-' + sceneNum).classList.add('active');
-            }, 300);
+            document.getElementById('scene-' + n).classList.add('active');
+            if (backgrounds[n]) document.getElementById('game-container').style.backgroundImage = backgrounds[n];
+        }
 
-            // Меняем фон
-            if (backgrounds[sceneNum]) {
-                document.getElementById('game-container').style.backgroundImage = backgrounds[sceneNum];
+        function checkAnswer(n, correct, hint) {
+            const val = document.getElementById('ans-' + n).value.toLowerCase().trim();
+            const msg = document.getElementById('msg-' + n);
+            
+            if (val.includes(correct)) {
+                msg.innerText = "Верно!";
+                msg.style.color = "#2ed573";
+                setTimeout(() => nextScene(n + 1), 1000);
+            } else {
+                // ВОТ ТУТ ТЕПЕРЬ ПОЯВЛЯЕТСЯ ПОДСКАЗКА
+                msg.innerText = "Нет. " + hint;
+                msg.style.color = "#ff4757";
             }
         }
 
-        // --- Умная проверка ответа (без Алертов) ---
-        function checkAnswer(sceneNum, correctAnswer) {
-            const inputField = document.getElementById('ans-' + sceneNum);
-            const msgField = document.getElementById('msg-' + sceneNum);
-            const val = inputField.value.toLowerCase().trim();
-
-            // Сбрасываем стили сообщения
-            msgField.style.opacity = '0';
-
-            // Небольшая пауза для эффекта "проверки"
-            setTimeout(() => {
-                if (val.includes(correctAnswer)) {
-                    // УСПЕХ
-                    msgField.innerText = "Верно! Воспоминание восстановлено...";
-                    msgField.style.color = "#2ed573";
-                    msgField.style.opacity = "1";
-                    
-                    // Через секунду переключаем сцену
-                    setTimeout(() => nextScene(sceneNum + 1), 1500);
-                } else {
-                    // ОШИБКА
-                    msgField.innerText = "Нет... Попробуй вспомнить другое.";
-                    msgField.style.color = "#ff4757";
-                    msgField.style.opacity = "1";
-                    
-                    // Тряска поля ввода (визуальный эффект ошибки)
-                    inputField.style.transform = "translateX(10px)";
-                    setTimeout(() => inputField.style.transform = "translateX(-10px)", 100);
-                    setTimeout(() => inputField.style.transform = "translateX(0)", 200);
-                }
-            }, 300);
-        }
-
-        // --- Снег ---
         function createSnow() {
             const snow = document.createElement('div');
             snow.innerText = '❄';
             snow.classList.add('snowflake');
             snow.style.left = Math.random() * 100 + '%';
-            snow.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
             snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            
             document.getElementById('game-container').appendChild(snow);
-            
             setTimeout(() => snow.remove(), 5000);
         }
         setInterval(createSnow, 200);
-
     </script>
 </body>
 </html>
