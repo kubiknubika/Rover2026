@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сквозь время и расстояние</title>
+    <title>Сквозь время</title>
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #000;
+            background-color: #111;
             color: white;
-            font-family: 'Courier New', monospace; /* Шрифт как в печатной машинке/тетради */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
             display: flex;
             justify-content: center;
@@ -18,184 +18,255 @@
             height: 100vh;
         }
 
-        /* Контейнер для сцены */
+        /* Рамка игры */
         #game-container {
             width: 90%;
-            max-width: 800px;
+            max-width: 900px;
             height: 80vh;
+            /* ФОН ПО УМОЛЧАНИЮ (если картинка не прогрузилась) */
+            background-color: #222; 
             background-size: cover;
             background-position: center;
-            border: 2px solid #gold;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+            background-repeat: no-repeat;
+            border: 3px solid #ffd700; /* Золотая рамка */
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
             position: relative;
-            border-radius: 15px;
-            transition: background-image 1s ease-in-out;
+            border-radius: 20px;
+            transition: background-image 0.5s ease-in-out;
+            overflow: hidden;
         }
 
-        /* Затемнение фона для читаемости текста */
+        /* Блок с текстом внизу */
         .overlay {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 40%;
-            background: linear-gradient(to top, rgba(0,0,0,0.9), transparent);
-            border-radius: 0 0 15px 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95) 20%, rgba(0,0,0,0.6) 80%, transparent);
+            padding: 30px 20px 50px; /* Отступы */
             box-sizing: border-box;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: slideUp 0.8s ease-out;
         }
 
-        h2 { margin: 0 0 10px 0; color: #ffd700; text-shadow: 0 0 5px #ffd700; }
-        p { font-size: 18px; line-height: 1.5; max-width: 600px; }
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
 
-        /* Поле ввода ответа */
+        h2 { 
+            margin: 0 0 15px 0; 
+            color: #ffd700; 
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        p { 
+            font-size: 18px; 
+            line-height: 1.6; 
+            max-width: 700px; 
+            margin-bottom: 20px;
+            color: #eee;
+        }
+
+        /* Стильное поле ввода */
         input {
             padding: 10px;
-            font-size: 16px;
-            border-radius: 5px;
+            font-size: 18px;
+            background: transparent;
             border: none;
-            margin-top: 10px;
-            width: 60%;
-            text-align: center;
-        }
-
-        button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #ff4757;
+            border-bottom: 2px solid #ffd700;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
+            text-align: center;
+            outline: none;
+            width: 200px;
             transition: 0.3s;
         }
-        button:hover { background-color: #ff6b81; }
+        input:focus { width: 300px; border-color: #fff; }
+        input::placeholder { color: #aaa; opacity: 0.7; }
+
+        /* Кнопка */
+        button {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background: transparent;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
+        button:hover { 
+            background-color: #ffd700; 
+            color: #000; 
+            box-shadow: 0 0 15px #ffd700;
+        }
+
+        /* Сообщение об ошибке/успехе (вместо Alert) */
+        #game-message {
+            height: 30px;
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .error-msg { color: #ff4757; }
+        .success-msg { color: #2ed573; }
 
         /* Снег */
         .snowflake {
             position: absolute;
-            top: -10px;
+            top: -20px;
             color: white;
+            opacity: 0.8;
+            pointer-events: none; /* Чтобы снег не мешал кликать */
             animation: fall linear infinite;
-            z-index: 999;
         }
-        @keyframes fall {
-            to { transform: translateY(100vh); }
-        }
+        @keyframes fall { to { transform: translateY(90vh); } }
 
-        /* Скрытые сцены */
+        /* Управление сценами */
         .scene { display: none; width: 100%; height: 100%; }
-        .active { display: flex; flex-direction: column; justify-content: flex-end; }
+        .active { display: block; }
 
     </style>
 </head>
 <body>
 
-    <!-- Снег создадим скриптом -->
-
     <div id="game-container">
         
-        <!-- СЦЕНА 1: БУФФАЛО (Начало) -->
+        <!-- СЦЕНА 1: БУФФАЛО -->
         <div id="scene-1" class="scene active">
             <div class="overlay">
                 <h2>Буффало. 23:55</h2>
-                <p>Ты смотришь на часы. В комнате тихо, только мерцает ёлка. Вдруг под ней ты замечаешь странную чёрную тетрадь...</p>
+                <p>Ты смотришь на часы. В комнате тихо, только мерцает ёлка. <br>Вдруг под ней ты замечаешь странную тетрадь...</p>
                 <button onclick="nextScene(2)">Открыть тетрадь</button>
             </div>
         </div>
 
-        <!-- СЦЕНА 2: ЗАГАДКА 1 (Красная площадь) -->
+        <!-- СЦЕНА 2: КРАСНАЯ ПЛОЩАДЬ -->
         <div id="scene-2" class="scene">
             <div class="overlay">
                 <h2>Воспоминание №1</h2>
-                <p>Ключ к счастью скрыт в прошлом. Мы на Красной площади 3 года назад. Что осветило небо над Спасской башней в ту ночь?</p>
-                <input type="text" id="ans-2" placeholder="Введите ответ...">
-                <button onclick="checkAnswer(2, 'салют')">Записать в тетрадь</button>
+                <p>Мы на Красной площади 3 года назад. <br>Что осветило небо над Спасской башней в ту ночь?</p>
+                
+                <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-2" class="game-message"></div>
+                
+                <button onclick="checkAnswer(2, 'салют')">Записать</button>
             </div>
         </div>
 
-        <!-- СЦЕНА 3: ЗАГАДКА 2 (Крит/Дождь - я объединил для динамики) -->
+        <!-- СЦЕНА 3: КРИТ -->
         <div id="scene-3" class="scene">
             <div class="overlay">
                 <h2>Воспоминание №2</h2>
-                <p>Туман забвения сгущается! Вспомни Крит. Мы не были на пляже. Где мы прятались от дождя и смеялись до слёз?</p>
-                <input type="text" id="ans-3" placeholder="Место...">
+                <p>Туман сгущается! Вспомни Крит. <br>Где мы прятались от дождя и смеялись до слёз?</p>
+                
+                <input type="text" id="ans-3" placeholder="Место..." autocomplete="off">
+                <div id="msg-3" class="game-message"></div>
+
                 <button onclick="checkAnswer(3, 'таверна')">Разогнать туман</button>
             </div>
         </div>
 
         <!-- СЦЕНА 4: ФИНАЛ -->
         <div id="scene-4" class="scene">
-            <div class="overlay" style="height: 100%; justify-content: center; background: rgba(0,0,0,0.7);">
-                <h1 style="color: #ffd700;">С Новым Годом, Брат!</h1>
-                <p>Семейное счастье — это не расстояние. Это моменты, которые мы несём в сердце.</p>
-                <p style="font-style: italic;">2025 — год, когда мы снова встретимся.</p>
-                <p>Люблю тебя!</p>
+            <div class="overlay" style="height: 100%; justify-content: center; background: rgba(0,0,0,0.8);">
+                <h1 style="color: #ffd700; font-size: 40px;">С Новым Годом!</h1>
+                <p>2025 — год, когда мы снова встретимся.</p>
+                <p style="margin-top: 30px; font-style: italic;">С любовью из России. ❤️</p>
             </div>
         </div>
 
     </div>
 
     <script>
-        // --- НАСТРОЙКИ ФОНОВ (Вставь сюда названия своих картинок) ---
+        // ==========================================
+        // ВАЖНО: Имена файлов должны совпадать с тем, 
+        // что ты загрузил в GitHub!
+        // Если картинка лежит просто в репозитории, пиши просто '1.jpg'
+        // ==========================================
         const backgrounds = {
-            1: 'url("https://images.unsplash.com/photo-1544084944-152696a63e09?q=80&w=1000")', // Зима/Елка (заглушка)
-            2: 'url("https://moscow-view.ru/wp-content/uploads/2020/01/salyut-na-krasnoy-ploshchadi.jpg")', // Салют
-            3: 'url("https://kartinki.pics/uploads/posts/2021-07/1626715654_39-kartinkin-com-p-dozhd-anime-fon-krasivo-44.jpg")', // Дождь/Таверна
-            4: 'url("https://phonoteka.org/uploads/posts/2021-05/1621623914_24-phonoteka_org-p-fon-dlya-prezentatsii-semya-25.jpg")' // Семья
+            1: 'url("1.jpg")',   // Сцена Буффало
+            2: 'url("2.jpg")',   // Сцена Салют
+            3: 'url("3.jpg")',   // Сцена Крит
+            4: 'url("4.jpg")'    // Сцена Финал
         };
 
-        // Устанавливаем фон первой сцены сразу
+        // Ставим первую картинку при загрузке
         document.getElementById('game-container').style.backgroundImage = backgrounds[1];
 
-        // --- ЛОГИКА ИГРЫ ---
-        function nextScene(sceneNumber) {
+        // --- Функция смены сцен ---
+        function nextScene(sceneNum) {
             // Скрываем все сцены
             document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
-            // Показываем нужную
-            document.getElementById('scene-' + sceneNumber).classList.add('active');
-            // Меняем фон
-            if(backgrounds[sceneNumber]) {
-                document.getElementById('game-container').style.backgroundImage = backgrounds[sceneNumber];
-            }
-        }
-
-        function checkAnswer(sceneNum, correctAnswer) {
-            let input = document.getElementById('ans-' + sceneNum).value.toLowerCase().trim();
             
-            // Проверка ответа (если ввел верно или хотя бы похоже)
-            if (input.includes(correctAnswer)) {
-                alert("Правильно! Портал открывается...");
-                nextScene(sceneNum + 1);
-            } else {
-                alert("Неверно... Попробуй вспомнить! (Подсказка: " + correctAnswer + ")");
-                // В реальной игре подсказку можно убрать, чтобы он мучился :)
+            // Показываем новую (с небольшой задержкой для красоты)
+            setTimeout(() => {
+                document.getElementById('scene-' + sceneNum).classList.add('active');
+            }, 300);
+
+            // Меняем фон
+            if (backgrounds[sceneNum]) {
+                document.getElementById('game-container').style.backgroundImage = backgrounds[sceneNum];
             }
         }
 
-        // --- ГЕНЕРАТОР СНЕГА ---
+        // --- Умная проверка ответа (без Алертов) ---
+        function checkAnswer(sceneNum, correctAnswer) {
+            const inputField = document.getElementById('ans-' + sceneNum);
+            const msgField = document.getElementById('msg-' + sceneNum);
+            const val = inputField.value.toLowerCase().trim();
+
+            // Сбрасываем стили сообщения
+            msgField.style.opacity = '0';
+
+            // Небольшая пауза для эффекта "проверки"
+            setTimeout(() => {
+                if (val.includes(correctAnswer)) {
+                    // УСПЕХ
+                    msgField.innerText = "Верно! Воспоминание восстановлено...";
+                    msgField.style.color = "#2ed573";
+                    msgField.style.opacity = "1";
+                    
+                    // Через секунду переключаем сцену
+                    setTimeout(() => nextScene(sceneNum + 1), 1500);
+                } else {
+                    // ОШИБКА
+                    msgField.innerText = "Нет... Попробуй вспомнить другое.";
+                    msgField.style.color = "#ff4757";
+                    msgField.style.opacity = "1";
+                    
+                    // Тряска поля ввода (визуальный эффект ошибки)
+                    inputField.style.transform = "translateX(10px)";
+                    setTimeout(() => inputField.style.transform = "translateX(-10px)", 100);
+                    setTimeout(() => inputField.style.transform = "translateX(0)", 200);
+                }
+            }, 300);
+        }
+
+        // --- Снег ---
         function createSnow() {
             const snow = document.createElement('div');
-            snow.innerHTML = '❄';
+            snow.innerText = '❄';
             snow.classList.add('snowflake');
-            snow.style.left = Math.random() * 100 + 'vw';
-            snow.style.animationDuration = Math.random() * 3 + 2 + 's';
-            snow.style.opacity = Math.random();
-            snow.style.fontSize = Math.random() * 10 + 10 + 'px';
+            snow.style.left = Math.random() * 100 + '%';
+            snow.style.fontSize = (Math.random() * 15 + 10) + 'px';
+            snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
             
-            document.body.appendChild(snow);
+            document.getElementById('game-container').appendChild(snow);
             
-            setTimeout(() => {
-                snow.remove();
-            }, 5000);
+            setTimeout(() => snow.remove(), 5000);
         }
-        setInterval(createSnow, 100);
+        setInterval(createSnow, 200);
 
     </script>
 </body>
