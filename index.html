@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Игра для брата</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #222;
+            color: white;
+            text-align: center;
+            overflow: hidden; /* Чтобы не появлялись полосы прокрутки */
+            user-select: none; /* Чтобы текст не выделялся при кликах */
+        }
+        h1 { margin-top: 20px; }
+        #score-board { font-size: 24px; color: #00ff00; margin-bottom: 20px; }
+        
+        /* Наш игровой персонаж (кнопка) */
+        #target {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background-color: #ff4757;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: top 0.2s, left 0.2s; /* Плавное перемещение */
+            box-shadow: 0 0 10px #ff4757;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Привет из России! 🇷🇺 🇺🇸</h1>
+    <p>Попробуй нажать на кнопку 10 раз.</p>
+    <div id="score-board">Счет: 0</div>
+
+    <!-- Сама кнопка -->
+    <div id="target" onclick="catchMe()">Жми!</div>
+
+    <script>
+        let score = 0;
+        const target = document.getElementById('target');
+        const scoreBoard = document.getElementById('score-board');
+
+        // Функция, которая срабатывает при клике
+        function catchMe() {
+            score++;
+            scoreBoard.innerText = "Счет: " + score;
+            
+            // Меняем цвет при каждом нажатии для красоты
+            const colors = ['#ff4757', '#2ed573', '#1e90ff', '#ffa502'];
+            target.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+
+            moveTarget();
+        }
+
+        // Функция перемещения кнопки
+        function moveTarget() {
+            // Вычисляем случайную позицию, но чтобы не вылетало за экран
+            // window.innerWidth - ширина экрана
+            // 100 - запас, чтобы кнопка не ушла за край
+            const x = Math.random() * (window.innerWidth - 100);
+            const y = Math.random() * (window.innerHeight - 200) + 100; // +100 чтобы не перекрыла заголовок
+
+            target.style.left = x + 'px';
+            target.style.top = y + 'px';
+        }
+
+        // Запускаем первое перемещение сразу
+        moveTarget();
+    </script>
+
+</body>
+</html>
