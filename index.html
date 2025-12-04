@@ -72,6 +72,15 @@
         }
         #start-button:hover { transform: scale(1.1); }
 
+        /* Подпись на экране загрузки */
+        .credits {
+            position: absolute;
+            bottom: 30px;
+            color: #666;
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
         /* === ИГРОВОЙ КОНТЕЙНЕР === */
         #game-container {
             width: 90%;
@@ -177,7 +186,7 @@
 
         /* ЗВЁЗДЫ (увеличенные) */
         .star {
-            font-size: clamp(3rem, 8vw, 5rem); /* Адаптивный размер */
+            font-size: clamp(3rem, 8vw, 5rem);
             cursor: pointer;
             transition: all 0.3s;
             filter: grayscale(100%) brightness(0.4);
@@ -198,7 +207,7 @@
             to { text-shadow: 0 0 30px gold, 0 0 60px orange, 0 0 80px yellow; }
         }
 
-        /* Центр хаба (пустой, только для финальной кнопки) */
+        /* Центр хаба (только кнопка финала) */
         .hub-center {
             display: flex;
             flex-direction: column;
@@ -267,6 +276,7 @@
         </div>
         <div id="progress-text">0%</div>
         <button id="start-button" onclick="game.start()">🚀 Отправиться в путешествие</button>
+        <div class="credits">Сделано семьёй Руслана в 2025 году ❤️</div>
     </div>
 
     <!-- ========== АУДИО ========== -->
@@ -278,6 +288,7 @@
     <audio id="music-level5" loop src="level5.mp3" preload="auto"></audio>
     <audio id="music-level6" loop src="level6.mp3" preload="auto"></audio>
     <audio id="sfx-whoosh" src="whoosh.mp3" preload="auto"></audio>
+    <audio id="sfx-hooray" src="hooray.mp3" preload="auto"></audio>
 
     <!-- ========== ИГРОВОЙ КОНТЕЙНЕР ========== -->
     <div id="game-container">
@@ -410,7 +421,7 @@
                 'level4.jpg', 'level5.jpg', 'level6.jpg'
             ],
             sounds: [
-                'music.mp3', 'whoosh.mp3',
+                'music.mp3', 'whoosh.mp3', 'hooray.mp3',
                 'level1.mp3', 'level2.mp3', 'level3.mp3',
                 'level4.mp3', 'level5.mp3', 'level6.mp3'
             ]
@@ -425,6 +436,7 @@
             // Аудио
             musicHub: document.getElementById('music-hub'),
             whoosh: document.getElementById('sfx-whoosh'),
+            hooray: document.getElementById('sfx-hooray'),
             levelMusic: {
                 1: document.getElementById('music-level1'),
                 2: document.getElementById('music-level2'),
@@ -448,7 +460,7 @@
             loadedCount: 0,
             totalAssets: CONFIG.images.length + CONFIG.sounds.length,
             
-            // Кэш изображений (чтобы не было серого экрана)
+            // Кэш изображений
             imageCache: {},
 
             // === ИНИЦИАЛИЗАЦИЯ ===
@@ -457,13 +469,14 @@
                 
                 // Настройка громкости
                 this.musicHub.volume = 0.4;
-                this.whoosh.volume = 1.0; // Максимальная громкость
+                this.whoosh.volume = 1.0;
+                this.hooray.volume = 0.8;
                 Object.values(this.levelMusic).forEach(m => m.volume = 0.4);
             },
 
             // === ПРЕДЗАГРУЗКА ===
             preloadAll: function() {
-                // Картинки (сохраняем в кэш)
+                // Картинки
                 CONFIG.images.forEach(src => {
                     const img = new Image();
                     img.onload = () => {
@@ -495,7 +508,7 @@
                 }
             },
 
-            // === УСТАНОВКА ФОНА (мгновенная) ===
+            // === УСТАНОВКА ФОНА ===
             setBackground: function(src) {
                 this.container.style.backgroundImage = `url("${src}")`;
             },
@@ -519,11 +532,9 @@
 
             // === ХАБ ===
             goToHub: function() {
-                // Сначала ставим фон (он уже в кэше)
                 const allDone = this.completedLevels.every(c => c);
                 this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
                 
-                // Показываем сцену
                 this.showScene('hub');
                 
                 // Музыка хаба
@@ -540,10 +551,7 @@
             goToLevel: function(n) {
                 this.currentLevel = n;
                 
-                // Фон уровня
                 this.setBackground(`level${n}.jpg`);
-                
-                // Показываем сцену
                 this.showScene('level-' + n);
                 
                 // Музыка: выключаем хаб, включаем уровень
@@ -554,33 +562,33 @@
             },
 
             // === ВОЗВРАТ В ХАБ ===
-backToHub: function(completed = false) {
-    
-    // Если уровень пройден — зажигаем звезду и играем звук
-    if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
-        this.completedLevels[this.currentLevel - 1] = true;
-        
-        // Звук "вшууу" только при прохождении!
-        this.whoosh.currentTime = 0;
-        this.whoosh.play();
-        
-        const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
-        if (star) {
-            setTimeout(() => star.classList.add('completed'), 300);
-        }
-    }
+            backToHub: function(completed = false) {
+                
+                // Если уровень пройден — зажигаем звезду и играем звук
+                if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
+                    this.completedLevels[this.currentLevel - 1] = true;
+                    
+                    // Звук "вшууу" только при прохождении!
+                    this.whoosh.currentTime = 0;
+                    this.whoosh.play();
+                    
+                    const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
+                    if (star) {
+                        setTimeout(() => star.classList.add('completed'), 300);
+                    }
+                }
 
-    // Очищаем поля ввода
-    if (this.currentLevel) {
-        const input = document.getElementById('ans-' + this.currentLevel);
-        const msg = document.getElementById('msg-' + this.currentLevel);
-        if (input) input.value = '';
-        if (msg) msg.innerText = '';
-    }
+                // Очищаем поля ввода
+                if (this.currentLevel) {
+                    const input = document.getElementById('ans-' + this.currentLevel);
+                    const msg = document.getElementById('msg-' + this.currentLevel);
+                    if (input) input.value = '';
+                    if (msg) msg.innerText = '';
+                }
 
-    this.currentLevel = null;
-    this.goToHub();
-},
+                this.currentLevel = null;
+                this.goToHub();
+            },
 
             // === ОСТАНОВКА МУЗЫКИ УРОВНЕЙ ===
             stopAllLevelMusic: function() {
@@ -610,9 +618,25 @@ backToHub: function(completed = false) {
 
             // === ФИНАЛ ===
             goToFinale: function() {
+                // Тройное "Ура!" с интервалом 0.3 сек
+                this.playHooray3Times();
+                
                 // Музыка хаба продолжает играть
                 this.setBackground('hub_open.jpg');
                 this.showScene('finale');
+            },
+
+            // === ТРОЙНОЕ УРА ===
+            playHooray3Times: function() {
+                const delays = [0, 300, 600];
+                
+                delays.forEach(delay => {
+                    setTimeout(() => {
+                        const sound = new Audio('hooray.mp3');
+                        sound.volume = 0.8;
+                        sound.play();
+                    }, delay);
+                });
             },
 
             // === СНЕГ ===
@@ -636,5 +660,3 @@ backToHub: function(completed = false) {
     </script>
 </body>
 </html>
-
-
