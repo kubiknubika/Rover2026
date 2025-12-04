@@ -599,22 +599,45 @@
             },
 
             // === ПРОВЕРКА ОТВЕТА ===
-            checkAnswer: function(levelNum, correct, hint) {
-                const input = document.getElementById('ans-' + levelNum);
-                const msg = document.getElementById('msg-' + levelNum);
-                const val = input.value.toLowerCase().trim();
+checkAnswer: function(levelNum, correct, hint) {
+    const input = document.getElementById('ans-' + levelNum);
+    const msg = document.getElementById('msg-' + levelNum);
+    const val = input.value.toLowerCase().trim();
+    
+    // Находим кнопку "Назад" в текущем уровне
+    const backBtn = document.querySelector('#level-' + levelNum + ' .btn-back');
 
-                if (val.includes(correct)) {
-                    msg.innerText = "✓ Верно!";
-                    msg.style.color = "#4cd137";
-                    setTimeout(() => this.backToHub(true), 1000);
-                } else {
-                    msg.innerText = "✗ " + hint;
-                    msg.style.color = "#e84118";
-                    input.style.transform = "translateX(10px)";
-                    setTimeout(() => input.style.transform = "translateX(0)", 100);
-                }
-            },
+    if (val.includes(correct)) {
+        msg.innerText = "✓ Верно!";
+        msg.style.color = "#4cd137";
+        
+        // Блокируем кнопку "Назад" и поле ввода
+        if (backBtn) {
+            backBtn.disabled = true;
+            backBtn.style.opacity = '0.3';
+            backBtn.style.pointerEvents = 'none';
+        }
+        input.disabled = true;
+        
+        // Переходим в хаб через 1 секунду
+        setTimeout(() => {
+            // Разблокируем обратно (для повторного входа)
+            if (backBtn) {
+                backBtn.disabled = false;
+                backBtn.style.opacity = '1';
+                backBtn.style.pointerEvents = 'auto';
+            }
+            input.disabled = false;
+            
+            this.backToHub(true);
+        }, 1000);
+    } else {
+        msg.innerText = "✗ " + hint;
+        msg.style.color = "#e84118";
+        input.style.transform = "translateX(10px)";
+        setTimeout(() => input.style.transform = "translateX(0)", 100);
+    }
+},
 
             // === ФИНАЛ ===
             goToFinale: function() {
@@ -627,17 +650,17 @@
             },
 
             // === ТРОЙНОЕ УРА ===
-            playHooray3Times: function() {
-                const delays = [0, 300, 600];
-                
-                delays.forEach(delay => {
-                    setTimeout(() => {
-                        const sound = new Audio('hooray.mp3');
-                        sound.volume = 0.8;
-                        sound.play();
-                    }, delay);
-                });
-            },
+playHooray3Times: function() {
+    const delays = [0, 500, 1000];  // 0, 0.5 сек, 1 сек
+    
+    delays.forEach(delay => {
+        setTimeout(() => {
+            const sound = new Audio('hooray.mp3');
+            sound.volume = 0.8;
+            sound.play();
+        }, delay);
+    });
+},
 
             // === СНЕГ ===
             startSnow: function() {
@@ -660,3 +683,4 @@
     </script>
 </body>
 </html>
+
