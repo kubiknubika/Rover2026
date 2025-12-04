@@ -86,16 +86,16 @@
             position: relative;
             overflow: hidden;
             display: none;
-            transition: background-image 0.6s;
+            transition: background-image 0.3s;
         }
         #game-container.visible { display: block; animation: fadeIn 1s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* === СЦЕНЫ (общее) === */
+        /* === СЦЕНЫ === */
         .scene { display: none; width: 100%; height: 100%; position: relative; }
-        .scene.active { display: flex; flex-direction: column; animation: fadeIn 0.8s; }
+        .scene.active { display: flex; flex-direction: column; animation: fadeIn 0.5s; }
 
-        /* === ТЕКСТОВЫЙ БЛОК (для обычных сцен) === */
+        /* === ТЕКСТОВЫЙ БЛОК === */
         .overlay {
             position: absolute;
             bottom: 0; width: 100%;
@@ -151,7 +151,7 @@
         input:focus { background: rgba(255,255,255,0.2); }
         .message { height: 25px; margin-top: 10px; font-weight: bold; }
 
-        /* === ХАБ (Тетрадь со звёздами) === */
+        /* === ХАБ === */
         #hub {
             justify-content: center;
             align-items: center;
@@ -159,71 +159,77 @@
         
         .hub-content {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             width: 100%;
             height: 100%;
+            padding: 5%;
             position: relative;
         }
 
-        /* Контейнеры звёзд */
+        /* Колонки звёзд */
         .stars-column {
             display: flex;
             flex-direction: column;
             justify-content: center;
-            gap: 25px;
-            padding: 20px;
+            gap: 5vh;
         }
 
-        /* Звезда */
+        /* ЗВЁЗДЫ (увеличенные) */
         .star {
-            width: 60px; height: 60px;
-            font-size: 2.5rem;
+            font-size: clamp(3rem, 8vw, 5rem); /* Адаптивный размер */
             cursor: pointer;
             transition: all 0.3s;
             filter: grayscale(100%) brightness(0.4);
             text-shadow: 0 0 5px rgba(0,0,0,0.8);
+            user-select: none;
         }
-        .star:hover { transform: scale(1.3); filter: grayscale(50%) brightness(0.7); }
+        .star:hover { 
+            transform: scale(1.3); 
+            filter: grayscale(50%) brightness(0.7); 
+        }
         .star.completed {
             filter: grayscale(0%) brightness(1);
-            text-shadow: 0 0 15px gold, 0 0 30px orange;
+            text-shadow: 0 0 20px gold, 0 0 40px orange;
             animation: glow 2s infinite alternate;
         }
         @keyframes glow {
-            from { text-shadow: 0 0 10px gold, 0 0 20px orange; }
-            to { text-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px yellow; }
+            from { text-shadow: 0 0 15px gold, 0 0 30px orange; }
+            to { text-shadow: 0 0 30px gold, 0 0 60px orange, 0 0 80px yellow; }
         }
 
-        /* Центр хаба (тетрадь) */
+        /* Центр хаба (пустой, только для финальной кнопки) */
         .hub-center {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-        }
-        .hub-center img {
-            max-width: 200px;
-            border-radius: 10px;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            flex: 1;
         }
 
-        /* Подсказка внизу хаба */
+        /* Подсказка */
         .hub-hint {
             position: absolute;
             bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
             color: #aaa;
-            font-size: 0.9rem;
+            font-size: 1rem;
             animation: blink 2s infinite;
+            text-align: center;
         }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
         /* Кнопка финала */
         .final-btn {
             display: none;
-            margin-top: 20px;
+            padding: 15px 40px;
+            font-size: 1.2rem;
         }
-        .final-btn.visible { display: block; animation: fadeIn 1s; }
+        .final-btn.visible { 
+            display: block; 
+            animation: fadeIn 1s, glow 2s infinite alternate; 
+        }
 
         /* === СНЕГ === */
         .snowflake {
@@ -236,7 +242,7 @@
         }
         @keyframes fall { to { transform: translateY(90vh); } }
 
-        /* === ФИНАЛЬНАЯ СЦЕНА === */
+        /* === ФИНАЛ === */
         #finale {
             justify-content: center;
             align-items: center;
@@ -244,11 +250,11 @@
         }
         #finale h1 {
             color: #ffd700;
-            font-size: 3rem;
+            font-size: clamp(2rem, 6vw, 3.5rem);
             text-shadow: 0 0 30px gold;
             margin-bottom: 20px;
         }
-        #finale p { font-size: 1.5rem; }
+        #finale p { font-size: clamp(1rem, 3vw, 1.5rem); }
     </style>
 </head>
 <body>
@@ -264,13 +270,19 @@
     </div>
 
     <!-- ========== АУДИО ========== -->
-    <audio id="bg-music" loop src="music.mp3"></audio>
-    <audio id="sfx-whoosh" src="whoosh.mp3"></audio>
+    <audio id="music-hub" loop src="music.mp3" preload="auto"></audio>
+    <audio id="music-level1" loop src="level1.mp3" preload="auto"></audio>
+    <audio id="music-level2" loop src="level2.mp3" preload="auto"></audio>
+    <audio id="music-level3" loop src="level3.mp3" preload="auto"></audio>
+    <audio id="music-level4" loop src="level4.mp3" preload="auto"></audio>
+    <audio id="music-level5" loop src="level5.mp3" preload="auto"></audio>
+    <audio id="music-level6" loop src="level6.mp3" preload="auto"></audio>
+    <audio id="sfx-whoosh" src="whoosh.mp3" preload="auto"></audio>
 
     <!-- ========== ИГРОВОЙ КОНТЕЙНЕР ========== -->
     <div id="game-container">
 
-        <!-- ИНТРО (Комната в Буффало) -->
+        <!-- ИНТРО -->
         <div id="intro" class="scene active">
             <div class="overlay">
                 <h2>Буффало. 23:55</h2>
@@ -279,27 +291,26 @@
             </div>
         </div>
 
-        <!-- ХАБ (Тетрадь со звёздами) -->
+        <!-- ХАБ -->
         <div id="hub" class="scene">
             <div class="hub-content">
                 <!-- Левые звёзды (1-3) -->
                 <div class="stars-column">
-                    <div class="star" onclick="game.goToLevel(1)">⭐</div>
-                    <div class="star" onclick="game.goToLevel(2)">⭐</div>
-                    <div class="star" onclick="game.goToLevel(3)">⭐</div>
+                    <div class="star" data-level="1" onclick="game.goToLevel(1)">⭐</div>
+                    <div class="star" data-level="2" onclick="game.goToLevel(2)">⭐</div>
+                    <div class="star" data-level="3" onclick="game.goToLevel(3)">⭐</div>
                 </div>
 
-                <!-- Центр (Тетрадь) -->
+                <!-- Центр (только кнопка финала) -->
                 <div class="hub-center">
-                    <img id="hub-image" src="hub.jpg" alt="Тетрадь воспоминаний">
                     <button class="btn final-btn" id="final-btn" onclick="game.goToFinale()">📖 Записать своё имя</button>
                 </div>
 
                 <!-- Правые звёзды (4-6) -->
                 <div class="stars-column">
-                    <div class="star" onclick="game.goToLevel(4)">⭐</div>
-                    <div class="star" onclick="game.goToLevel(5)">⭐</div>
-                    <div class="star" onclick="game.goToLevel(6)">⭐</div>
+                    <div class="star" data-level="4" onclick="game.goToLevel(4)">⭐</div>
+                    <div class="star" data-level="5" onclick="game.goToLevel(5)">⭐</div>
+                    <div class="star" data-level="6" onclick="game.goToLevel(6)">⭐</div>
                 </div>
             </div>
             <div class="hub-hint">✨ Нажми на звёздочку, чтобы начать воспоминание</div>
@@ -307,7 +318,7 @@
 
         <!-- УРОВЕНЬ 1 -->
         <div id="level-1" class="scene" data-bg="level1.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(1)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №1</h2>
                 <p>Москва, 3 года назад. Что осветило небо над Кремлём?</p>
@@ -319,7 +330,7 @@
 
         <!-- УРОВЕНЬ 2 -->
         <div id="level-2" class="scene" data-bg="level2.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(2)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №2</h2>
                 <p>Крит. Ливень. Где мы спрятались и смеялись?</p>
@@ -331,31 +342,31 @@
 
         <!-- УРОВЕНЬ 3 -->
         <div id="level-3" class="scene" data-bg="level3.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(3)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №3</h2>
                 <p>День рождения. Какой необычный предмет был на столе?</p>
                 <input type="text" id="ans-3" placeholder="Твой ответ..." autocomplete="off">
                 <div id="msg-3" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(3, 'матрёшка', 'Подсказка: Русский сувенир с сюрпризом внутри')">Ответить</button>
+                <button class="btn" onclick="game.checkAnswer(3, 'матрёшка', 'Подсказка: Русский сувенир')">Ответить</button>
             </div>
         </div>
 
         <!-- УРОВЕНЬ 4 -->
         <div id="level-4" class="scene" data-bg="level4.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(4)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №4</h2>
                 <p>Зимняя прогулка. По какой реке мы гуляли?</p>
                 <input type="text" id="ans-4" placeholder="Твой ответ..." autocomplete="off">
                 <div id="msg-4" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(4, 'сходня', 'Подсказка: Название реки в Подмосковье')">Ответить</button>
+                <button class="btn" onclick="game.checkAnswer(4, 'сходня', 'Подсказка: Река в Подмосковье')">Ответить</button>
             </div>
         </div>
 
         <!-- УРОВЕНЬ 5 -->
         <div id="level-5" class="scene" data-bg="level5.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(5)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №5</h2>
                 <p>Летний вечер. Что мы запускали в небо?</p>
@@ -367,7 +378,7 @@
 
         <!-- УРОВЕНЬ 6 -->
         <div id="level-6" class="scene" data-bg="level6.jpg">
-            <button class="btn btn-back" onclick="game.backToHub(6)">← Назад</button>
+            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №6</h2>
                 <p>Самое главное. Что связывает нас навсегда?</p>
@@ -398,7 +409,11 @@
                 'level1.jpg', 'level2.jpg', 'level3.jpg',
                 'level4.jpg', 'level5.jpg', 'level6.jpg'
             ],
-            sounds: ['music.mp3', 'whoosh.mp3']
+            sounds: [
+                'music.mp3', 'whoosh.mp3',
+                'level1.mp3', 'level2.mp3', 'level3.mp3',
+                'level4.mp3', 'level5.mp3', 'level6.mp3'
+            ]
         };
 
         // =================================================
@@ -406,36 +421,59 @@
         // =================================================
         const game = {
             container: document.getElementById('game-container'),
-            music: document.getElementById('bg-music'),
+            
+            // Аудио
+            musicHub: document.getElementById('music-hub'),
             whoosh: document.getElementById('sfx-whoosh'),
+            levelMusic: {
+                1: document.getElementById('music-level1'),
+                2: document.getElementById('music-level2'),
+                3: document.getElementById('music-level3'),
+                4: document.getElementById('music-level4'),
+                5: document.getElementById('music-level5'),
+                6: document.getElementById('music-level6')
+            },
+            
+            // UI
             loadingScreen: document.getElementById('loading-screen'),
             progressBar: document.getElementById('progress-bar'),
             progressText: document.getElementById('progress-text'),
             startButton: document.getElementById('start-button'),
-            hubImage: document.getElementById('hub-image'),
             finalBtn: document.getElementById('final-btn'),
-            
             stars: document.querySelectorAll('.star'),
+            
+            // Состояние
             completedLevels: [false, false, false, false, false, false],
+            currentLevel: null,
             loadedCount: 0,
             totalAssets: CONFIG.images.length + CONFIG.sounds.length,
+            
+            // Кэш изображений (чтобы не было серого экрана)
+            imageCache: {},
 
             // === ИНИЦИАЛИЗАЦИЯ ===
             init: function() {
                 this.preloadAll();
-                this.music.volume = 0.4;
-                this.whoosh.volume = 0.6;
+                
+                // Настройка громкости
+                this.musicHub.volume = 0.4;
+                this.whoosh.volume = 1.0; // Максимальная громкость
+                Object.values(this.levelMusic).forEach(m => m.volume = 0.4);
             },
 
             // === ПРЕДЗАГРУЗКА ===
             preloadAll: function() {
-                // Картинки
+                // Картинки (сохраняем в кэш)
                 CONFIG.images.forEach(src => {
                     const img = new Image();
-                    img.onload = () => this.assetLoaded();
+                    img.onload = () => {
+                        this.imageCache[src] = img;
+                        this.assetLoaded();
+                    };
                     img.onerror = () => this.assetLoaded();
                     img.src = src;
                 });
+                
                 // Звуки
                 CONFIG.sounds.forEach(src => {
                     const audio = new Audio();
@@ -457,63 +495,97 @@
                 }
             },
 
+            // === УСТАНОВКА ФОНА (мгновенная) ===
+            setBackground: function(src) {
+                this.container.style.backgroundImage = `url("${src}")`;
+            },
+
             // === СТАРТ ИГРЫ ===
             start: function() {
                 this.loadingScreen.classList.add('hidden');
                 setTimeout(() => {
                     this.container.classList.add('visible');
-                    this.container.style.backgroundImage = 'url("1.jpg")';
+                    this.setBackground('1.jpg');
                     this.showScene('intro');
                     this.startSnow();
                 }, 500);
             },
 
-            // === УПРАВЛЕНИЕ СЦЕНАМИ ===
+            // === СЦЕНЫ ===
             showScene: function(id) {
                 document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
             },
 
-            // === ПЕРЕХОД В ХАБ ===
+            // === ХАБ ===
             goToHub: function() {
-                this.container.style.backgroundImage = 'url("hub.jpg")';
+                // Сначала ставим фон (он уже в кэше)
+                const allDone = this.completedLevels.every(c => c);
+                this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
+                
+                // Показываем сцену
                 this.showScene('hub');
-                this.music.play();
+                
+                // Музыка хаба
+                this.stopAllLevelMusic();
+                this.musicHub.play();
+                
+                // Проверяем финал
+                if (allDone) {
+                    this.finalBtn.classList.add('visible');
+                }
             },
 
             // === ПЕРЕХОД НА УРОВЕНЬ ===
             goToLevel: function(n) {
-                const level = document.getElementById('level-' + n);
-                const bg = level.getAttribute('data-bg');
-                this.container.style.backgroundImage = `url("${bg}")`;
+                this.currentLevel = n;
+                
+                // Фон уровня
+                this.setBackground(`level${n}.jpg`);
+                
+                // Показываем сцену
                 this.showScene('level-' + n);
-                this.music.pause();
+                
+                // Музыка: выключаем хаб, включаем уровень
+                this.musicHub.pause();
+                this.stopAllLevelMusic();
+                this.levelMusic[n].currentTime = 0;
+                this.levelMusic[n].play();
             },
 
-            // === ВОЗВРАТ В ХАБ (после прохождения или по кнопке "Назад") ===
-            backToHub: function(levelNum, completed = false) {
+            // === ВОЗВРАТ В ХАБ ===
+            backToHub: function(completed = false) {
                 // Звук "вшууу"
                 this.whoosh.currentTime = 0;
                 this.whoosh.play();
 
                 // Если уровень пройден — зажигаем звезду
-                if (completed && !this.completedLevels[levelNum - 1]) {
-                    this.completedLevels[levelNum - 1] = true;
-                    setTimeout(() => {
-                        this.stars[levelNum - 1].classList.add('completed');
-                    }, 300);
+                if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
+                    this.completedLevels[this.currentLevel - 1] = true;
+                    const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
+                    if (star) {
+                        setTimeout(() => star.classList.add('completed'), 300);
+                    }
                 }
 
-                // Проверяем, все ли уровни пройдены
-                this.checkAllCompleted();
+                // Очищаем поля ввода
+                if (this.currentLevel) {
+                    const input = document.getElementById('ans-' + this.currentLevel);
+                    const msg = document.getElementById('msg-' + this.currentLevel);
+                    if (input) input.value = '';
+                    if (msg) msg.innerText = '';
+                }
 
-                // Меняем фон хаба
-                const allDone = this.completedLevels.every(c => c);
-                this.container.style.backgroundImage = allDone ? 'url("hub_open.jpg")' : 'url("hub.jpg")';
-                this.hubImage.src = allDone ? 'hub_open.jpg' : 'hub.jpg';
+                this.currentLevel = null;
+                this.goToHub();
+            },
 
-                this.showScene('hub');
-                this.music.play();
+            // === ОСТАНОВКА МУЗЫКИ УРОВНЕЙ ===
+            stopAllLevelMusic: function() {
+                Object.values(this.levelMusic).forEach(m => {
+                    m.pause();
+                    m.currentTime = 0;
+                });
             },
 
             // === ПРОВЕРКА ОТВЕТА ===
@@ -525,11 +597,7 @@
                 if (val.includes(correct)) {
                     msg.innerText = "✓ Верно!";
                     msg.style.color = "#4cd137";
-                    setTimeout(() => {
-                        input.value = '';
-                        msg.innerText = '';
-                        this.backToHub(levelNum, true);
-                    }, 1000);
+                    setTimeout(() => this.backToHub(true), 1000);
                 } else {
                     msg.innerText = "✗ " + hint;
                     msg.style.color = "#e84118";
@@ -538,18 +606,10 @@
                 }
             },
 
-            // === ПРОВЕРКА ЗАВЕРШЕНИЯ ВСЕХ УРОВНЕЙ ===
-            checkAllCompleted: function() {
-                const allDone = this.completedLevels.every(c => c);
-                if (allDone) {
-                    this.finalBtn.classList.add('visible');
-                }
-            },
-
-            // === ПЕРЕХОД К ФИНАЛУ ===
+            // === ФИНАЛ ===
             goToFinale: function() {
-                this.music.pause();
-                this.container.style.backgroundImage = 'url("hub_open.jpg")';
+                // Музыка хаба продолжает играть
+                this.setBackground('hub_open.jpg');
                 this.showScene('finale');
             },
 
