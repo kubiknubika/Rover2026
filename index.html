@@ -555,21 +555,15 @@
 
             // === ВОЗВРАТ В ХАБ ===
 backToHub: function(completed = false) {
-    // Звук "вшууу" с проверкой
-    try {
-        this.whoosh.currentTime = 0;
-        this.whoosh.play().then(() => {
-            console.log("Whoosh играет!");
-        }).catch(err => {
-            console.error("Whoosh ошибка:", err);
-        });
-    } catch (e) {
-        console.error("Whoosh исключение:", e);
-    }
-
-    // Если уровень пройден — зажигаем звезду
+    
+    // Если уровень пройден — зажигаем звезду и играем звук
     if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
         this.completedLevels[this.currentLevel - 1] = true;
+        
+        // Звук "вшууу" только при прохождении!
+        this.whoosh.currentTime = 0;
+        this.whoosh.play();
+        
         const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
         if (star) {
             setTimeout(() => star.classList.add('completed'), 300);
@@ -642,4 +636,5 @@ backToHub: function(completed = false) {
     </script>
 </body>
 </html>
+
 
