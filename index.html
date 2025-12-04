@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сквозь время</title>
     <style>
-        /* --- СТИЛИ (Остались прежними) --- */
+        /* --- БАЗОВЫЕ СТИЛИ --- */
         body {
             margin: 0;
             background-color: #0a0a0a;
@@ -18,6 +18,86 @@
             overflow: hidden;
         }
 
+        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 1s ease-out;
+        }
+
+        #loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #loading-screen h1 {
+            color: #ffd700;
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Контейнер прогресс-бара */
+        #progress-container {
+            width: 300px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        /* Сам прогресс-бар */
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ff6b6b);
+            border-radius: 10px;
+            transition: width 0.3s ease-out;
+        }
+
+        #progress-text {
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 30px;
+        }
+
+        /* Кнопка "Начать" (скрыта до загрузки) */
+        #start-button {
+            padding: 15px 50px;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            color: #000;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 30px rgba(255, 215, 0, 0.4);
+            transition: 0.3s;
+            display: none; /* Скрыта по умолчанию */
+        }
+
+        #start-button:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 40px rgba(255, 215, 0, 0.6);
+        }
+
+        /* --- КОНТЕЙНЕР ИГРЫ --- */
         #game-container {
             width: 90%;
             max-width: 900px;
@@ -31,8 +111,15 @@
             position: relative;
             overflow: hidden;
             transition: background-image 0.6s ease-in-out;
+            display: none; /* Скрыт до начала игры */
         }
 
+        #game-container.visible {
+            display: block;
+            animation: fadeIn 1s;
+        }
+
+        /* --- ТЕКСТОВЫЙ БЛОК --- */
         .overlay {
             position: absolute;
             bottom: 0;
@@ -64,7 +151,7 @@
         }
         input:focus { background: rgba(255, 255, 255, 0.2); width: 300px; }
 
-        button {
+        button.game-btn {
             margin-top: 15px;
             padding: 12px 40px;
             background: #ffd700;
@@ -77,13 +164,14 @@
             transition: 0.2s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
         }
-        button:hover { transform: scale(1.05); background: #fff; }
+        button.game-btn:hover { transform: scale(1.05); background: #fff; }
 
         .message { height: 25px; margin-top: 10px; font-weight: bold; text-shadow: 0 2px 2px black; }
         .scene { display: none; width: 100%; height: 100%; }
         .scene.active { display: block; animation: fadeIn 1s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
+        /* --- СНЕГ --- */
         .snowflake {
             position: absolute;
             top: -20px;
@@ -96,12 +184,22 @@
 </head>
 <body>
 
-    <!-- АУДИОПЛЕЕР (Скрытый) -->
-    <!-- loop означает, что музыка будет играть по кругу -->
+    <!-- ========== ЭКРАН ЗАГРУЗКИ ========== -->
+    <div id="loading-screen">
+        <h1>✨ Загружаем воспоминания...</h1>
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="progress-text">0%</div>
+        <button id="start-button" onclick="game.start()">🚀 Отправиться в путешествие</button>
+    </div>
+
+    <!-- ========== АУДИО ========== -->
     <audio id="bg-music" loop>
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
+    <!-- ========== ИГРА ========== -->
     <div id="game-container">
         
         <!-- Сцена 1 -->
@@ -109,8 +207,7 @@
             <div class="overlay">
                 <h2>Буффало. 23:55</h2>
                 <p>В комнате тихо, только мерцает ёлка. <br>Под ней лежит странная тетрадь...</p>
-                <!-- Обрати внимание: тут вызывается startMusic() -->
-                <button onclick="game.startMusicAndNext()">Открыть тетрадь</button>
+                <button class="game-btn" onclick="game.next(2)">Открыть тетрадь</button>
             </div>
         </div>
 
@@ -121,7 +218,7 @@
                 <p>Москва, 3 года назад. Что осветило небо над Кремлем?</p>
                 <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
                 <div id="msg-2" class="message"></div>
-                <button onclick="game.check(2, 'салют', 'Подсказка: Это громко и красиво!')">Записать</button>
+                <button class="game-btn" onclick="game.check(2, 'салют', 'Подсказка: Это громко и красиво!')">Записать</button>
             </div>
         </div>
 
@@ -132,7 +229,7 @@
                 <p>Крит. Ливень. Где мы спрятались и ели?</p>
                 <input type="text" id="ans-3" placeholder="Твой ответ..." autocomplete="off">
                 <div id="msg-3" class="message"></div>
-                <button onclick="game.check(3, 'таверна', 'Подсказка: Там было уютно...')">Вспомнить</button>
+                <button class="game-btn" onclick="game.check(3, 'таверна', 'Подсказка: Там было уютно...')">Вспомнить</button>
             </div>
         </div>
 
@@ -147,43 +244,88 @@
     </div>
 
     <script>
+        // =================================================
+        // ⚙️ НАСТРОЙКИ
+        // =================================================
         const CONFIG = {
-            images: { 1: '1.jpg', 2: '2.jpg', 3: '3.jpg', 4: '4.jpg' }
+            images: ['1.jpg', '2.jpg', '3.jpg', '4.jpg'],
+            music: 'music.mp3'
         };
 
+        // =================================================
+        // 🚀 ДВИЖОК ИГРЫ
+        // =================================================
         const game = {
             container: document.getElementById('game-container'),
             music: document.getElementById('bg-music'),
+            loadingScreen: document.getElementById('loading-screen'),
+            progressBar: document.getElementById('progress-bar'),
+            progressText: document.getElementById('progress-text'),
+            startButton: document.getElementById('start-button'),
 
+            loadedCount: 0,
+            totalAssets: CONFIG.images.length + 1, // Картинки + музыка
+
+            // Инициализация (запускается сразу)
             init: function() {
-                this.setImage(1);
-                this.preloadImages();
-                setInterval(this.createSnow, 200);
+                this.preloadAll();
+            },
+
+            // Предзагрузка всех ресурсов
+            preloadAll: function() {
+                // Загружаем картинки
+                CONFIG.images.forEach(src => {
+                    const img = new Image();
+                    img.onload = () => this.assetLoaded();
+                    img.onerror = () => this.assetLoaded(); // Даже при ошибке идём дальше
+                    img.src = src;
+                });
+
+                // Загружаем музыку
+                this.music.addEventListener('canplaythrough', () => this.assetLoaded(), { once: true });
+                this.music.load();
+            },
+
+            // Вызывается каждый раз, когда ресурс загрузился
+            assetLoaded: function() {
+                this.loadedCount++;
+                const percent = Math.round((this.loadedCount / this.totalAssets) * 100);
                 
-                // Настраиваем громкость (0.4 = 40%)
-                this.music.volume = 0.4; 
+                // Обновляем прогресс-бар
+                this.progressBar.style.width = percent + '%';
+                this.progressText.innerText = percent + '%';
+
+                // Если всё загружено — показываем кнопку
+                if (this.loadedCount >= this.totalAssets) {
+                    this.progressText.innerText = 'Готово!';
+                    this.startButton.style.display = 'block';
+                }
             },
 
-            // НОВАЯ ФУНКЦИЯ: Запуск музыки + переход ко 2 сцене
-            startMusicAndNext: function() {
-                // Пытаемся запустить музыку
-                this.music.play().catch(error => {
-                    console.log("Автозапуск заблокирован браузером, но мы попытались:", error);
-                });
-                // Переходим дальше
-                this.next(2);
+            // Запуск игры (после клика на кнопку)
+            start: function() {
+                // Включаем музыку
+                this.music.volume = 0.4;
+                this.music.play();
+
+                // Скрываем экран загрузки
+                this.loadingScreen.classList.add('hidden');
+
+                // Показываем игру
+                setTimeout(() => {
+                    this.container.classList.add('visible');
+                    this.setImage(1);
+                    setInterval(this.createSnow.bind(this), 200);
+                }, 500);
             },
 
+            // Установка фона
             setImage: function(n) {
-                if (CONFIG.images[n]) this.container.style.backgroundImage = `url("${CONFIG.images[n]}")`;
+                const src = CONFIG.images[n - 1]; // Массив с 0, сцены с 1
+                if (src) this.container.style.backgroundImage = `url("${src}")`;
             },
 
-            preloadImages: function() {
-                Object.values(CONFIG.images).forEach(src => {
-                    const img = new Image(); img.src = src;
-                });
-            },
-
+            // Переход к следующей сцене
             next: function(n) {
                 document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
                 this.setImage(n);
@@ -192,6 +334,7 @@
                 }, 100);
             },
 
+            // Проверка ответа
             check: function(sceneNum, correct, hint) {
                 const input = document.getElementById('ans-' + sceneNum);
                 const msg = document.getElementById('msg-' + sceneNum);
@@ -209,6 +352,7 @@
                 }
             },
 
+            // Снег
             createSnow: function() {
                 const snow = document.createElement('div');
                 snow.innerText = '❄';
@@ -217,11 +361,12 @@
                 snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
                 snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
                 snow.style.opacity = Math.random();
-                document.getElementById('game-container').appendChild(snow);
+                this.container.appendChild(snow);
                 setTimeout(() => snow.remove(), 5000);
             }
         };
 
+        // Поехали!
         game.init();
     </script>
 </body>
