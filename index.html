@@ -5,79 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Сквозь время</title>
     <style>
-        /* --- БАЗОВЫЕ СТИЛИ --- */
+        /* === БАЗОВЫЕ СТИЛИ === */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            margin: 0;
             background-color: #0a0a0a;
             color: white;
             font-family: 'Segoe UI', sans-serif;
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             overflow: hidden;
         }
 
-        /* --- ЭКРАН ЗАГРУЗКИ --- */
+        /* === ЭКРАН ЗАГРУЗКИ === */
         #loading-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 1s ease-out;
+            transition: opacity 1s;
         }
-
-        #loading-screen.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
+        #loading-screen.hidden { opacity: 0; pointer-events: none; }
         #loading-screen h1 {
             color: #ffd700;
-            font-size: 2rem;
+            font-size: 1.8rem;
             margin-bottom: 30px;
             text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
             animation: pulse 2s infinite;
         }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        /* Контейнер прогресс-бара */
         #progress-container {
-            width: 300px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 300px; height: 8px;
+            background: rgba(255,255,255,0.1);
             border-radius: 10px;
             overflow: hidden;
             margin-bottom: 15px;
         }
-
-        /* Сам прогресс-бар */
         #progress-bar {
-            width: 0%;
-            height: 100%;
+            width: 0%; height: 100%;
             background: linear-gradient(90deg, #ffd700, #ff6b6b);
             border-radius: 10px;
-            transition: width 0.3s ease-out;
+            transition: width 0.3s;
         }
-
-        #progress-text {
-            font-size: 0.9rem;
-            color: #aaa;
-            margin-bottom: 30px;
-        }
-
-        /* Кнопка "Начать" (скрыта до загрузки) */
+        #progress-text { color: #aaa; margin-bottom: 30px; }
+        
         #start-button {
             padding: 15px 50px;
             background: linear-gradient(90deg, #ffd700, #ffaa00);
@@ -88,20 +67,16 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 5px 30px rgba(255, 215, 0, 0.4);
+            display: none;
             transition: 0.3s;
-            display: none; /* Скрыта по умолчанию */
         }
+        #start-button:hover { transform: scale(1.1); }
 
-        #start-button:hover {
-            transform: scale(1.1);
-            box-shadow: 0 5px 40px rgba(255, 215, 0, 0.6);
-        }
-
-        /* --- КОНТЕЙНЕР ИГРЫ --- */
+        /* === ИГРОВОЙ КОНТЕЙНЕР === */
         #game-container {
             width: 90%;
             max-width: 900px;
-            height: 80vh;
+            height: 85vh;
             background-color: #1a1a1a;
             background-size: cover;
             background-position: center;
@@ -110,49 +85,32 @@
             border-radius: 15px;
             position: relative;
             overflow: hidden;
-            transition: background-image 0.6s ease-in-out;
-            display: none; /* Скрыт до начала игры */
+            display: none;
+            transition: background-image 0.6s;
         }
+        #game-container.visible { display: block; animation: fadeIn 1s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #game-container.visible {
-            display: block;
-            animation: fadeIn 1s;
-        }
+        /* === СЦЕНЫ (общее) === */
+        .scene { display: none; width: 100%; height: 100%; position: relative; }
+        .scene.active { display: flex; flex-direction: column; animation: fadeIn 0.8s; }
 
-        /* --- ТЕКСТОВЫЙ БЛОК --- */
+        /* === ТЕКСТОВЫЙ БЛОК (для обычных сцен) === */
         .overlay {
             position: absolute;
-            bottom: 0;
-            width: 100%;
+            bottom: 0; width: 100%;
             background: linear-gradient(to top, black 10%, rgba(0,0,0,0.8) 50%, transparent);
-            padding: 60px 20px 40px;
+            padding: 50px 20px 40px;
             text-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-sizing: border-box;
         }
+        .overlay h2 { color: #ffd700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px; text-shadow: 0 2px 4px black; }
+        .overlay p { font-size: 1.1rem; max-width: 700px; margin-bottom: 20px; line-height: 1.5; text-shadow: 0 2px 4px black; }
 
-        h2 { margin: 0; color: #ffd700; text-transform: uppercase; letter-spacing: 3px; font-size: 1.2rem; text-shadow: 0 2px 4px black; }
-        p { font-size: 1.1rem; max-width: 700px; margin: 15px 0 25px; text-shadow: 0 2px 4px black; line-height: 1.5; }
-
-        input {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-bottom: 2px solid #ffd700;
-            color: white;
-            font-size: 1.2rem;
-            padding: 10px;
-            text-align: center;
-            outline: none;
-            width: 200px;
-            border-radius: 5px 5px 0 0;
-            transition: 0.3s;
-        }
-        input:focus { background: rgba(255, 255, 255, 0.2); width: 300px; }
-
-        button.game-btn {
-            margin-top: 15px;
+        /* === КНОПКИ === */
+        .btn {
             padding: 12px 40px;
             background: #ffd700;
             color: black;
@@ -163,23 +121,134 @@
             cursor: pointer;
             transition: 0.2s;
             box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            margin-top: 10px;
         }
-        button.game-btn:hover { transform: scale(1.05); background: #fff; }
+        .btn:hover { transform: scale(1.05); background: #fff; }
+        .btn-back {
+            position: absolute;
+            top: 20px; left: 20px;
+            padding: 10px 25px;
+            background: rgba(0,0,0,0.5);
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            z-index: 100;
+        }
+        .btn-back:hover { background: #ffd700; color: black; }
 
-        .message { height: 25px; margin-top: 10px; font-weight: bold; text-shadow: 0 2px 2px black; }
-        .scene { display: none; width: 100%; height: 100%; }
-        .scene.active { display: block; animation: fadeIn 1s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* === ПОЛЕ ВВОДА === */
+        input {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-bottom: 2px solid #ffd700;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px;
+            text-align: center;
+            outline: none;
+            width: 220px;
+            border-radius: 5px 5px 0 0;
+        }
+        input:focus { background: rgba(255,255,255,0.2); }
+        .message { height: 25px; margin-top: 10px; font-weight: bold; }
 
-        /* --- СНЕГ --- */
+        /* === ХАБ (Тетрадь со звёздами) === */
+        #hub {
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hub-content {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* Контейнеры звёзд */
+        .stars-column {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 25px;
+            padding: 20px;
+        }
+
+        /* Звезда */
+        .star {
+            width: 60px; height: 60px;
+            font-size: 2.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            filter: grayscale(100%) brightness(0.4);
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
+        .star:hover { transform: scale(1.3); filter: grayscale(50%) brightness(0.7); }
+        .star.completed {
+            filter: grayscale(0%) brightness(1);
+            text-shadow: 0 0 15px gold, 0 0 30px orange;
+            animation: glow 2s infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 10px gold, 0 0 20px orange; }
+            to { text-shadow: 0 0 20px gold, 0 0 40px orange, 0 0 60px yellow; }
+        }
+
+        /* Центр хаба (тетрадь) */
+        .hub-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .hub-center img {
+            max-width: 200px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+        }
+
+        /* Подсказка внизу хаба */
+        .hub-hint {
+            position: absolute;
+            bottom: 30px;
+            color: #aaa;
+            font-size: 0.9rem;
+            animation: blink 2s infinite;
+        }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        /* Кнопка финала */
+        .final-btn {
+            display: none;
+            margin-top: 20px;
+        }
+        .final-btn.visible { display: block; animation: fadeIn 1s; }
+
+        /* === СНЕГ === */
         .snowflake {
             position: absolute;
             top: -20px;
             color: white;
             pointer-events: none;
             animation: fall linear infinite;
+            z-index: 50;
         }
         @keyframes fall { to { transform: translateY(90vh); } }
+
+        /* === ФИНАЛЬНАЯ СЦЕНА === */
+        #finale {
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+        #finale h1 {
+            color: #ffd700;
+            font-size: 3rem;
+            text-shadow: 0 0 30px gold;
+            margin-bottom: 20px;
+        }
+        #finale p { font-size: 1.5rem; }
     </style>
 </head>
 <body>
@@ -195,49 +264,125 @@
     </div>
 
     <!-- ========== АУДИО ========== -->
-    <audio id="bg-music" loop>
-        <source src="music.mp3" type="audio/mpeg">
-    </audio>
+    <audio id="bg-music" loop src="music.mp3"></audio>
+    <audio id="sfx-whoosh" src="whoosh.mp3"></audio>
 
-    <!-- ========== ИГРА ========== -->
+    <!-- ========== ИГРОВОЙ КОНТЕЙНЕР ========== -->
     <div id="game-container">
-        
-        <!-- Сцена 1 -->
-        <div id="scene-1" class="scene active">
+
+        <!-- ИНТРО (Комната в Буффало) -->
+        <div id="intro" class="scene active">
             <div class="overlay">
                 <h2>Буффало. 23:55</h2>
-                <p>В комнате тихо, только мерцает ёлка. <br>Под ней лежит странная тетрадь...</p>
-                <button class="game-btn" onclick="game.next(2)">Открыть тетрадь</button>
+                <p>В комнате тихо, только мерцает ёлка.<br>Под ней лежит странная тетрадь...</p>
+                <button class="btn" onclick="game.goToHub()">Открыть тетрадь</button>
             </div>
         </div>
 
-        <!-- Сцена 2 -->
-        <div id="scene-2" class="scene">
+        <!-- ХАБ (Тетрадь со звёздами) -->
+        <div id="hub" class="scene">
+            <div class="hub-content">
+                <!-- Левые звёзды (1-3) -->
+                <div class="stars-column">
+                    <div class="star" onclick="game.goToLevel(1)">⭐</div>
+                    <div class="star" onclick="game.goToLevel(2)">⭐</div>
+                    <div class="star" onclick="game.goToLevel(3)">⭐</div>
+                </div>
+
+                <!-- Центр (Тетрадь) -->
+                <div class="hub-center">
+                    <img id="hub-image" src="hub.jpg" alt="Тетрадь воспоминаний">
+                    <button class="btn final-btn" id="final-btn" onclick="game.goToFinale()">📖 Записать своё имя</button>
+                </div>
+
+                <!-- Правые звёзды (4-6) -->
+                <div class="stars-column">
+                    <div class="star" onclick="game.goToLevel(4)">⭐</div>
+                    <div class="star" onclick="game.goToLevel(5)">⭐</div>
+                    <div class="star" onclick="game.goToLevel(6)">⭐</div>
+                </div>
+            </div>
+            <div class="hub-hint">✨ Нажми на звёздочку, чтобы начать воспоминание</div>
+        </div>
+
+        <!-- УРОВЕНЬ 1 -->
+        <div id="level-1" class="scene" data-bg="level1.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(1)">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №1</h2>
-                <p>Москва, 3 года назад. Что осветило небо над Кремлем?</p>
-                <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-2" class="message"></div>
-                <button class="game-btn" onclick="game.check(2, 'салют', 'Подсказка: Это громко и красиво!')">Записать</button>
+                <p>Москва, 3 года назад. Что осветило небо над Кремлём?</p>
+                <input type="text" id="ans-1" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-1" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(1, 'салют', 'Подсказка: Бах-бах и красиво!')">Ответить</button>
             </div>
         </div>
 
-        <!-- Сцена 3 -->
-        <div id="scene-3" class="scene">
+        <!-- УРОВЕНЬ 2 -->
+        <div id="level-2" class="scene" data-bg="level2.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(2)">← Назад</button>
             <div class="overlay">
                 <h2>Воспоминание №2</h2>
-                <p>Крит. Ливень. Где мы спрятались и ели?</p>
-                <input type="text" id="ans-3" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-3" class="message"></div>
-                <button class="game-btn" onclick="game.check(3, 'таверна', 'Подсказка: Там было уютно...')">Вспомнить</button>
+                <p>Крит. Ливень. Где мы спрятались и смеялись?</p>
+                <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-2" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(2, 'таверна', 'Подсказка: Там кормили...')">Ответить</button>
             </div>
         </div>
 
-        <!-- Сцена 4 -->
-        <div id="scene-4" class="scene">
-            <div class="overlay" style="height: 100%; justify-content: center;">
-                <h1 style="color: #ffd700; font-size: 3rem; margin-bottom: 10px;">С Новым Годом!</h1>
-                <p style="font-size: 1.5rem;">Скоро увидимся.</p>
+        <!-- УРОВЕНЬ 3 -->
+        <div id="level-3" class="scene" data-bg="level3.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(3)">← Назад</button>
+            <div class="overlay">
+                <h2>Воспоминание №3</h2>
+                <p>День рождения. Какой необычный предмет был на столе?</p>
+                <input type="text" id="ans-3" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-3" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(3, 'матрёшка', 'Подсказка: Русский сувенир с сюрпризом внутри')">Ответить</button>
+            </div>
+        </div>
+
+        <!-- УРОВЕНЬ 4 -->
+        <div id="level-4" class="scene" data-bg="level4.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(4)">← Назад</button>
+            <div class="overlay">
+                <h2>Воспоминание №4</h2>
+                <p>Зимняя прогулка. По какой реке мы гуляли?</p>
+                <input type="text" id="ans-4" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-4" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(4, 'сходня', 'Подсказка: Название реки в Подмосковье')">Ответить</button>
+            </div>
+        </div>
+
+        <!-- УРОВЕНЬ 5 -->
+        <div id="level-5" class="scene" data-bg="level5.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(5)">← Назад</button>
+            <div class="overlay">
+                <h2>Воспоминание №5</h2>
+                <p>Летний вечер. Что мы запускали в небо?</p>
+                <input type="text" id="ans-5" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-5" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(5, 'фонарик', 'Подсказка: Светится и летит...')">Ответить</button>
+            </div>
+        </div>
+
+        <!-- УРОВЕНЬ 6 -->
+        <div id="level-6" class="scene" data-bg="level6.jpg">
+            <button class="btn btn-back" onclick="game.backToHub(6)">← Назад</button>
+            <div class="overlay">
+                <h2>Воспоминание №6</h2>
+                <p>Самое главное. Что связывает нас навсегда?</p>
+                <input type="text" id="ans-6" placeholder="Твой ответ..." autocomplete="off">
+                <div id="msg-6" class="message"></div>
+                <button class="btn" onclick="game.checkAnswer(6, 'семья', 'Подсказка: Мы — это...')">Ответить</button>
+            </div>
+        </div>
+
+        <!-- ФИНАЛ -->
+        <div id="finale" class="scene">
+            <div class="overlay" style="height: 100%; justify-content: center; background: rgba(0,0,0,0.7);">
+                <h1>🎄 С Новым Годом! 🎄</h1>
+                <p>Скоро увидимся.</p>
+                <p style="margin-top: 30px; font-style: italic; color: #ffd700;">С любовью из России ❤️</p>
             </div>
         </div>
 
@@ -248,8 +393,12 @@
         // ⚙️ НАСТРОЙКИ
         // =================================================
         const CONFIG = {
-            images: ['1.jpg', '2.jpg', '3.jpg', '4.jpg'],
-            music: 'music.mp3'
+            images: [
+                '1.jpg', 'hub.jpg', 'hub_open.jpg',
+                'level1.jpg', 'level2.jpg', 'level3.jpg',
+                'level4.jpg', 'level5.jpg', 'level6.jpg'
+            ],
+            sounds: ['music.mp3', 'whoosh.mp3']
         };
 
         // =================================================
@@ -258,111 +407,165 @@
         const game = {
             container: document.getElementById('game-container'),
             music: document.getElementById('bg-music'),
+            whoosh: document.getElementById('sfx-whoosh'),
             loadingScreen: document.getElementById('loading-screen'),
             progressBar: document.getElementById('progress-bar'),
             progressText: document.getElementById('progress-text'),
             startButton: document.getElementById('start-button'),
-
+            hubImage: document.getElementById('hub-image'),
+            finalBtn: document.getElementById('final-btn'),
+            
+            stars: document.querySelectorAll('.star'),
+            completedLevels: [false, false, false, false, false, false],
             loadedCount: 0,
-            totalAssets: CONFIG.images.length + 1, // Картинки + музыка
+            totalAssets: CONFIG.images.length + CONFIG.sounds.length,
 
-            // Инициализация (запускается сразу)
+            // === ИНИЦИАЛИЗАЦИЯ ===
             init: function() {
                 this.preloadAll();
+                this.music.volume = 0.4;
+                this.whoosh.volume = 0.6;
             },
 
-            // Предзагрузка всех ресурсов
+            // === ПРЕДЗАГРУЗКА ===
             preloadAll: function() {
-                // Загружаем картинки
+                // Картинки
                 CONFIG.images.forEach(src => {
                     const img = new Image();
                     img.onload = () => this.assetLoaded();
-                    img.onerror = () => this.assetLoaded(); // Даже при ошибке идём дальше
+                    img.onerror = () => this.assetLoaded();
                     img.src = src;
                 });
-
-                // Загружаем музыку
-                this.music.addEventListener('canplaythrough', () => this.assetLoaded(), { once: true });
-                this.music.load();
+                // Звуки
+                CONFIG.sounds.forEach(src => {
+                    const audio = new Audio();
+                    audio.oncanplaythrough = () => this.assetLoaded();
+                    audio.onerror = () => this.assetLoaded();
+                    audio.src = src;
+                });
             },
 
-            // Вызывается каждый раз, когда ресурс загрузился
             assetLoaded: function() {
                 this.loadedCount++;
                 const percent = Math.round((this.loadedCount / this.totalAssets) * 100);
-                
-                // Обновляем прогресс-бар
                 this.progressBar.style.width = percent + '%';
                 this.progressText.innerText = percent + '%';
 
-                // Если всё загружено — показываем кнопку
                 if (this.loadedCount >= this.totalAssets) {
                     this.progressText.innerText = 'Готово!';
                     this.startButton.style.display = 'block';
                 }
             },
 
-            // Запуск игры (после клика на кнопку)
+            // === СТАРТ ИГРЫ ===
             start: function() {
-                // Включаем музыку
-                this.music.volume = 0.4;
-                this.music.play();
-
-                // Скрываем экран загрузки
                 this.loadingScreen.classList.add('hidden');
-
-                // Показываем игру
                 setTimeout(() => {
                     this.container.classList.add('visible');
-                    this.setImage(1);
-                    setInterval(this.createSnow.bind(this), 200);
+                    this.container.style.backgroundImage = 'url("1.jpg")';
+                    this.showScene('intro');
+                    this.startSnow();
                 }, 500);
             },
 
-            // Установка фона
-            setImage: function(n) {
-                const src = CONFIG.images[n - 1]; // Массив с 0, сцены с 1
-                if (src) this.container.style.backgroundImage = `url("${src}")`;
+            // === УПРАВЛЕНИЕ СЦЕНАМИ ===
+            showScene: function(id) {
+                document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+                document.getElementById(id).classList.add('active');
             },
 
-            // Переход к следующей сцене
-            next: function(n) {
-                document.querySelectorAll('.scene').forEach(el => el.classList.remove('active'));
-                this.setImage(n);
-                setTimeout(() => {
-                    document.getElementById('scene-' + n).classList.add('active');
-                }, 100);
+            // === ПЕРЕХОД В ХАБ ===
+            goToHub: function() {
+                this.container.style.backgroundImage = 'url("hub.jpg")';
+                this.showScene('hub');
+                this.music.play();
             },
 
-            // Проверка ответа
-            check: function(sceneNum, correct, hint) {
-                const input = document.getElementById('ans-' + sceneNum);
-                const msg = document.getElementById('msg-' + sceneNum);
+            // === ПЕРЕХОД НА УРОВЕНЬ ===
+            goToLevel: function(n) {
+                const level = document.getElementById('level-' + n);
+                const bg = level.getAttribute('data-bg');
+                this.container.style.backgroundImage = `url("${bg}")`;
+                this.showScene('level-' + n);
+                this.music.pause();
+            },
+
+            // === ВОЗВРАТ В ХАБ (после прохождения или по кнопке "Назад") ===
+            backToHub: function(levelNum, completed = false) {
+                // Звук "вшууу"
+                this.whoosh.currentTime = 0;
+                this.whoosh.play();
+
+                // Если уровень пройден — зажигаем звезду
+                if (completed && !this.completedLevels[levelNum - 1]) {
+                    this.completedLevels[levelNum - 1] = true;
+                    setTimeout(() => {
+                        this.stars[levelNum - 1].classList.add('completed');
+                    }, 300);
+                }
+
+                // Проверяем, все ли уровни пройдены
+                this.checkAllCompleted();
+
+                // Меняем фон хаба
+                const allDone = this.completedLevels.every(c => c);
+                this.container.style.backgroundImage = allDone ? 'url("hub_open.jpg")' : 'url("hub.jpg")';
+                this.hubImage.src = allDone ? 'hub_open.jpg' : 'hub.jpg';
+
+                this.showScene('hub');
+                this.music.play();
+            },
+
+            // === ПРОВЕРКА ОТВЕТА ===
+            checkAnswer: function(levelNum, correct, hint) {
+                const input = document.getElementById('ans-' + levelNum);
+                const msg = document.getElementById('msg-' + levelNum);
                 const val = input.value.toLowerCase().trim();
 
                 if (val.includes(correct)) {
-                    msg.innerText = "Верно!";
+                    msg.innerText = "✓ Верно!";
                     msg.style.color = "#4cd137";
-                    setTimeout(() => this.next(sceneNum + 1), 1000);
+                    setTimeout(() => {
+                        input.value = '';
+                        msg.innerText = '';
+                        this.backToHub(levelNum, true);
+                    }, 1000);
                 } else {
-                    msg.innerText = "Нет. " + hint;
+                    msg.innerText = "✗ " + hint;
                     msg.style.color = "#e84118";
                     input.style.transform = "translateX(10px)";
                     setTimeout(() => input.style.transform = "translateX(0)", 100);
                 }
             },
 
-            // Снег
-            createSnow: function() {
-                const snow = document.createElement('div');
-                snow.innerText = '❄';
-                snow.classList.add('snowflake');
-                snow.style.left = Math.random() * 100 + '%';
-                snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                snow.style.opacity = Math.random();
-                this.container.appendChild(snow);
-                setTimeout(() => snow.remove(), 5000);
+            // === ПРОВЕРКА ЗАВЕРШЕНИЯ ВСЕХ УРОВНЕЙ ===
+            checkAllCompleted: function() {
+                const allDone = this.completedLevels.every(c => c);
+                if (allDone) {
+                    this.finalBtn.classList.add('visible');
+                }
+            },
+
+            // === ПЕРЕХОД К ФИНАЛУ ===
+            goToFinale: function() {
+                this.music.pause();
+                this.container.style.backgroundImage = 'url("hub_open.jpg")';
+                this.showScene('finale');
+            },
+
+            // === СНЕГ ===
+            startSnow: function() {
+                setInterval(() => {
+                    const snow = document.createElement('div');
+                    snow.innerText = '❄';
+                    snow.classList.add('snowflake');
+                    snow.style.left = Math.random() * 100 + '%';
+                    snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                    snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    snow.style.opacity = Math.random();
+                    this.container.appendChild(snow);
+                    setTimeout(() => snow.remove(), 5000);
+                }, 200);
             }
         };
 
