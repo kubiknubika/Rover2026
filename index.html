@@ -554,31 +554,39 @@
             },
 
             // === ВОЗВРАТ В ХАБ ===
-            backToHub: function(completed = false) {
-                // Звук "вшууу"
-                this.whoosh.currentTime = 0;
-                this.whoosh.play();
+backToHub: function(completed = false) {
+    // Звук "вшууу" с проверкой
+    try {
+        this.whoosh.currentTime = 0;
+        this.whoosh.play().then(() => {
+            console.log("Whoosh играет!");
+        }).catch(err => {
+            console.error("Whoosh ошибка:", err);
+        });
+    } catch (e) {
+        console.error("Whoosh исключение:", e);
+    }
 
-                // Если уровень пройден — зажигаем звезду
-                if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
-                    this.completedLevels[this.currentLevel - 1] = true;
-                    const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
-                    if (star) {
-                        setTimeout(() => star.classList.add('completed'), 300);
-                    }
-                }
+    // Если уровень пройден — зажигаем звезду
+    if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
+        this.completedLevels[this.currentLevel - 1] = true;
+        const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
+        if (star) {
+            setTimeout(() => star.classList.add('completed'), 300);
+        }
+    }
 
-                // Очищаем поля ввода
-                if (this.currentLevel) {
-                    const input = document.getElementById('ans-' + this.currentLevel);
-                    const msg = document.getElementById('msg-' + this.currentLevel);
-                    if (input) input.value = '';
-                    if (msg) msg.innerText = '';
-                }
+    // Очищаем поля ввода
+    if (this.currentLevel) {
+        const input = document.getElementById('ans-' + this.currentLevel);
+        const msg = document.getElementById('msg-' + this.currentLevel);
+        if (input) input.value = '';
+        if (msg) msg.innerText = '';
+    }
 
-                this.currentLevel = null;
-                this.goToHub();
-            },
+    this.currentLevel = null;
+    this.goToHub();
+},
 
             // === ОСТАНОВКА МУЗЫКИ УРОВНЕЙ ===
             stopAllLevelMusic: function() {
@@ -634,3 +642,4 @@
     </script>
 </body>
 </html>
+
