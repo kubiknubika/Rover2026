@@ -237,7 +237,7 @@
       <div class="progress-pill px-3 py-2 rounded-xl bg-black/40 border border-white/10">
         <div class="flex items-center justify-between gap-3">
           <div class="text-xs text-white/75">Прогресс</div>
-          <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/4</div>
+          <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/7</div>
         </div>
         <div class="mt-2 h-1.5 w-32 sm:w-40 rounded-full bg-white/10 overflow-hidden">
           <div id="mini-progress-bar" class="h-1.5 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
@@ -274,19 +274,22 @@
       <div class="w-full h-full p-[5%] relative flex items-center justify-between">
 
         <!-- Left stars -->
-        <div class="flex flex-col justify-center gap-[7vh]">
+        <div class="flex flex-col justify-center gap-[6vh]">
           <button class="star" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
           <button class="star" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
+          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
         </div>
 
         <!-- Center -->
         <div class="flex-1 flex flex-col items-center justify-center">
+          <button class="star mb-6" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
+
           <button id="final-btn" class="hidden px-8 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black shadow-[0_10px_30px_rgba(255,215,0,.25)] hover:bg-white transition" type="button">📖 Записать своё имя</button>
 
           <div class="mt-5 w-[min(420px,92%)]">
             <div class="flex items-center justify-between text-xs text-white/70 mb-1">
               <span>Шаги по воспоминаниям</span>
-              <span id="hub-progress-text" class="font-bold text-[var(--gold)]">0/4</span>
+              <span id="hub-progress-text" class="font-bold text-[var(--gold)]">0/7</span>
             </div>
             <div class="h-2 rounded-full bg-white/10 overflow-hidden">
               <div id="hub-progress-bar" class="h-2 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
@@ -297,9 +300,10 @@
         </div>
 
         <!-- Right stars -->
-        <div class="flex flex-col justify-center gap-[7vh]">
-          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
-          <button class="star" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
+        <div class="flex flex-col justify-center gap-[6vh]">
+          <button class="star" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
+          <button class="star" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
+          <button class="star" data-level="7" aria-label="Воспоминание 7" type="button">⭐</button>
         </div>
 
         <div class="absolute bottom-7 left-1/2 -translate-x-1/2 text-white/70 text-center text-sm sm:text-base" style="animation:pulse 2s infinite">
@@ -349,7 +353,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №3</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какой салат мама любит делать на Новый год?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какое историческое место мы увидели на НГ?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-3" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -367,7 +371,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №4</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Москва, 3 года назад. Что осветило небо над Кремлём?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Что необычного мы увидели на Новый год?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-4" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -385,7 +389,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №5</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Летний вечер. Что мы запускали в небо?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">На чём любит играть Дядя Слава и Маша?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-5" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -403,7 +407,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №6</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Самое главное. Что связывает нас навсегда?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какой салат мама любит делать на Новый год?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-6" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -414,6 +418,24 @@
 
         <div id="msg-6" class="mt-2 h-7 font-bold"></div>
         <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="6" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-7" class="scene" data-bg="level6.jpg" aria-label="Уровень 7">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №7</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Самое главное. Что связывает нас навсегда?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-7" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-7">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="7" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-7" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-7" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="7" type="button">Ответить</button>
       </div>
     </section>
 
@@ -456,14 +478,14 @@
     // CONFIG
     // =================================================
     const CONFIG = {
-      storageKey: 'svk-time-progress-v5',
-      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg'],
-      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3'],
+      storageKey: 'svk-time-progress-v7',
+      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg'],
+      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3'],
       reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       sceneMs: 650
     };
 
-    // 4 игры (5-6 отключены)
+    // 7 воспоминаний
     const LEVELS = {
       1: {
         answers: ['крит', 'остров крит', 'греция'],
@@ -471,16 +493,28 @@
       },
       2: {
         answers: ['верблюд', 'верблюды'],
-        hints: ['Подсказка: На них было тяжело залезать.', 'Ещё подсказка: Они часто катают туристов в пустыне.']
+        hints: ['Подсказка: На них было тяжело залезать.', 'Ещё подсказка: Обычно они катают туристов в пустыне.']
       },
       3: {
+        answers: ['большой театр', 'государственный академический большой театр россии'],
+        hints: ['Подсказка: Один из самых значимых в мире оперы и балета.', 'Ещё подсказка: Это «Большой».']
+      },
+      4: {
+        answers: ['трава', 'траву'],
+        hints: ['Подсказка: Обычно она только летом.', 'Ещё подсказка: Она зелёная 🙂']
+      },
+      5: {
+        answers: ['гитара', 'на гитаре'],
+        hints: ['Подсказка: Шесть струн.', 'Ещё подсказка: На ней играют аккордами.']
+      },
+      6: {
         answers: ['оливье', 'салат оливье'],
         hints: ['Подсказка: Там есть докторская колбаса.', 'Ещё подсказка: Самый новогодний салат.']
       },
-      4: {
-        answers: ['салют', 'фейерверк', 'фейерверки'],
-        hints: ['Подсказка: Бах-бах и красиво!', 'Ещё подсказка: это запускают на праздники над городом.']
-      },
+      7: {
+        answers: ['семья'],
+        hints: ['Подсказка: Мы — это...', 'Ещё подсказка: Самое родное слово.']
+      }
     };
 
     const TOTAL_LEVELS = Object.keys(LEVELS).length;
@@ -826,9 +860,15 @@
 
       playLevelMusic(n){
         this.stopAllLevelMusic();
-        safePause(this.audio.hub);
+
         const m = this.audio.level[n];
-        if (!m) return;
+        // If there is no dedicated level music (e.g., level 7), keep hub music.
+        if (!m){
+          safePlay(this.audio.hub);
+          return;
+        }
+
+        safePause(this.audio.hub);
         try{ m.currentTime = 0; }catch(e){}
         safePlay(m);
       },
