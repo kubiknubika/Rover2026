@@ -20,9 +20,16 @@
       --app-h: 100vh; /* stable app height (JS may override with px) */
       --game-h: 85vh; /* stable game height (JS may override with px) */
       --fall-h: 95vh; /* snow fall distance fallback */
+
+      /* Reserved space for bottom controls (progress + sound).
+         JS temporarily sets this to 0px in levels when the bar is hidden. */
+      --bottom-ui-h: 72px;
     }
     @supports (height: 1svh){
       :root{ --app-h: 100svh; --game-h: 85svh; --fall-h: 95svh; }
+    }
+    @media (max-width: 640px){
+      :root{ --bottom-ui-h: 84px; }
     }
 
     /* Base */
@@ -101,28 +108,88 @@
       overscroll-behavior: contain;
       -webkit-overflow-scrolling:touch;
 
-      /* Safe area + locked keyboard padding (kbd is fixed once on focus to avoid jitter) */
-      padding-bottom:calc(36px + env(safe-area-inset-bottom) + var(--kbd));
+      /* Safe area + locked keyboard padding + reserved space for bottom UI */
+      padding-bottom:calc(36px + env(safe-area-inset-bottom) + var(--kbd) + var(--bottom-ui-h));
     }
     @media (max-width: 640px){
       .overlay{
         padding:44px 14px 26px;
         height: clamp(320px, 72%, 620px);
         max-height: 88%;
-        padding-bottom:calc(26px + env(safe-area-inset-bottom) + var(--kbd));
+        padding-bottom:calc(26px + env(safe-area-inset-bottom) + var(--kbd) + var(--bottom-ui-h));
       }
     }
 
     /* Stars */
     .star{
-      font-size:clamp(3rem, 8vw, 5rem);
+      --y: 0px;
+      font-size:clamp(2.1rem, 5.8vw, 3.6rem);
       cursor:pointer;
       user-select:none;
       transition:transform .25s ease, filter .25s ease;
       filter:grayscale(100%) brightness(.45);
       text-shadow:0 0 6px rgba(0,0,0,.85);
+      transform: translateY(var(--y));
     }
-    .star:hover{transform:scale(1.25); filter:grayscale(50%) brightness(.75)}
+    .star:hover{transform: translateY(var(--y)) scale(1.18); filter:grayscale(50%) brightness(.75)}
+
+    /* Garland layout in hub */
+    .garland{
+      position:absolute;
+      top:0;
+      left:0;
+      right:0;
+      height: 118px;
+      z-index:35;
+      pointer-events:none; /* stars will re-enable */
+    }
+    @media (max-width: 640px){
+      .garland{height: 104px;}
+    }
+
+    .garland .wire{
+      position:absolute;
+      left: -5%;
+      right: -5%;
+      top: 22px;
+      height: 70px;
+      border-top: 2px solid rgba(255,215,0,.35);
+      filter: drop-shadow(0 10px 14px rgba(0,0,0,.55));
+      border-radius: 999px;
+      transform: rotate(-2deg);
+      opacity:.9;
+    }
+
+    .garland .stars-row{
+      position:absolute;
+      left: 10px;
+      right: 10px;
+      top: 22px;
+      height: 86px;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap: 10px;
+      padding: 0 10px;
+      pointer-events:none;
+    }
+
+    .garland .stars-row .star{
+      pointer-events:auto;
+      background: rgba(0,0,0,.25);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 999px;
+      padding: 4px 10px;
+      backdrop-filter: blur(8px);
+    }
+
+    .garland .stars-row .star:nth-child(1){ transform: translateY(10px); }
+    .garland .stars-row .star:nth-child(2){ transform: translateY(34px); }
+    .garland .stars-row .star:nth-child(3){ transform: translateY(18px); }
+    .garland .stars-row .star:nth-child(4){ transform: translateY(44px); }
+    .garland .stars-row .star:nth-child(5){ transform: translateY(14px); }
+    .garland .stars-row .star:nth-child(6){ transform: translateY(40px); }
+    .garland .stars-row .star:nth-child(7){ transform: translateY(22px); }
 
     @keyframes glow{
       from{ text-shadow:0 0 14px gold, 0 0 28px orange; }
@@ -152,8 +219,34 @@
     .answer-input:focus{outline:none; box-shadow:0 0 0 2px rgba(255,215,0,.35)}
 
     /* Toast */
-    .toast{position:absolute; left:50%; transform:translateX(-50%); top:14px; z-index:60; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;}
-    .toast.show{opacity:1; transform:translateX(-50%) translateY(2px)}
+    /* Place toast above the bottom controls bar */
+    .toast{
+      position:absolute;
+      left:50%;
+      transform:translateX(-50%);
+      bottom:calc(var(--bottom-ui-h) + 14px + env(safe-area-inset-bottom));
+      z-index:60;
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .25s ease, transform .25s ease;
+    }
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(-2px)}
+
+    /* Bottom controls bar (progress + sound) */
+    #bottom-bar{
+      position:absolute;
+      left:0; right:0;
+      bottom:0;
+      z-index:55;
+      padding: 10px 12px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom));
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-end;
+      gap:10px;
+      pointer-events:none;
+    }
+    #bottom-bar > *{pointer-events:auto;}
 
     /* Simple shake */
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(6px)}50%{transform:translateX(-6px)}75%{transform:translateX(4px)}}
@@ -209,7 +302,7 @@
       </div>
 
       <div class="mt-8 text-center text-white/40 italic">Сделано семьёй Руслана в 2025 году ❤️</div>
-      <div class="mt-6 text-center text-xs text-white/35">Совет: после старта можно выключать музыку (иконка в правом верхнем углу).</div>
+      <div class="mt-6 text-center text-xs text-white/35">Совет: после старта можно выключать музыку (иконка внизу).</div>
     </div>
   </div>
 
@@ -232,27 +325,26 @@
       <div class="px-4 py-2 rounded-full bg-black/60 border border-white/10 text-sm text-white/90 shadow-lg">—</div>
     </div>
 
-    <!-- Progress (always visible) -->
-    <div class="absolute top-3 left-3 z-40">
-      <div class="progress-pill px-3 py-2 rounded-xl bg-black/40 border border-white/10">
+    <!-- Bottom controls bar (progress + sound) -->
+    <div id="bottom-bar" aria-label="Панель управления">
+      <div class="progress-pill px-3 py-2 rounded-xl bg-black/40 border border-white/10 w-[180px] sm:w-[220px]">
         <div class="flex items-center justify-between gap-3">
           <div class="text-xs text-white/75">Прогресс</div>
           <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/7</div>
         </div>
-        <div class="mt-2 h-1.5 w-32 sm:w-40 rounded-full bg-white/10 overflow-hidden">
+        <div class="mt-2 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
           <div id="mini-progress-bar" class="h-1.5 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
         </div>
       </div>
-    </div>
 
-    <!-- Top bar controls -->
-    <div class="absolute top-3 right-3 z-40 flex items-center gap-2">
-      <button id="btn-mute" class="px-3 py-2 rounded-xl bg-black/40 border border-white/10 hover:bg-black/55 transition" type="button" aria-pressed="false" title="Вкл/выкл звук">
-        <span id="mute-icon">🔊</span>
-      </button>
-      <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-black/40 border border-white/10">
-        <span class="text-xs text-white/70">Громкость</span>
-        <input id="volume" type="range" min="0" max="1" step="0.01" class="w-28" />
+      <div class="flex items-center gap-2">
+        <button id="btn-mute" class="px-3 py-2 rounded-xl bg-black/40 border border-white/10 hover:bg-black/55 transition" type="button" aria-pressed="false" title="Вкл/выкл звук">
+          <span id="mute-icon">🔊</span>
+        </button>
+        <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-black/40 border border-white/10">
+          <span class="text-xs text-white/70">Громкость</span>
+          <input id="volume" type="range" min="0" max="1" step="0.01" class="w-28" />
+        </div>
       </div>
     </div>
 
@@ -271,19 +363,24 @@
 
     <!-- Hub -->
     <section id="hub" class="scene" aria-label="Хаб" data-bg="hub.jpg">
-      <div class="w-full h-full p-[5%] relative flex items-center justify-between">
+      <div class="w-full h-full p-[5%] relative flex items-center justify-center">
 
-        <!-- Left stars -->
-        <div class="flex flex-col justify-center gap-[6vh]">
-          <button class="star" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
-          <button class="star" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
-          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
+        <!-- Garland of stars (top) -->
+        <div class="garland" aria-hidden="false">
+          <div class="wire"></div>
+          <div class="stars-row">
+            <button class="star" style="--y:10px" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
+            <button class="star" style="--y:34px" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
+            <button class="star" style="--y:18px" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
+            <button class="star" style="--y:44px" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
+            <button class="star" style="--y:14px" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
+            <button class="star" style="--y:40px" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
+            <button class="star" style="--y:22px" data-level="7" aria-label="Воспоминание 7" type="button">⭐</button>
+          </div>
         </div>
 
         <!-- Center -->
-        <div class="flex-1 flex flex-col items-center justify-center">
-          <button class="star mb-6" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
-
+        <div class="flex-1 flex flex-col items-center justify-center pt-[80px] sm:pt-[92px]">
           <button id="final-btn" class="hidden px-8 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black shadow-[0_10px_30px_rgba(255,215,0,.25)] hover:bg-white transition" type="button">📖 Записать своё имя</button>
 
           <div class="mt-5 w-[min(420px,92%)]">
@@ -297,17 +394,10 @@
           </div>
 
           <button id="reset-btn" class="mt-4 px-6 py-2 rounded-full text-sm font-semibold border border-white/15 bg-black/20 hover:bg-black/40 transition" type="button">Сбросить прогресс</button>
-        </div>
 
-        <!-- Right stars -->
-        <div class="flex flex-col justify-center gap-[6vh]">
-          <button class="star" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
-          <button class="star" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
-          <button class="star" data-level="7" aria-label="Воспоминание 7" type="button">⭐</button>
-        </div>
-
-        <div class="absolute bottom-7 left-1/2 -translate-x-1/2 text-white/70 text-center text-sm sm:text-base" style="animation:pulse 2s infinite">
-          ✨ Нажми на звёздочку, чтобы начать воспоминание
+          <div class="mt-6 text-white/70 text-center text-sm sm:text-base" style="animation:pulse 2s infinite">
+            ✨ Нажми на звёздочку, чтобы начать воспоминание
+          </div>
         </div>
       </div>
     </section>
@@ -421,7 +511,7 @@
       </div>
     </section>
 
-    <section id="level-7" class="scene" data-bg="level6.jpg" aria-label="Уровень 7">
+    <section id="level-7" class="scene" data-bg="level7.jpg" aria-label="Уровень 7">
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №7</h2>
@@ -771,6 +861,17 @@
         if (!next) return;
         const prev = this.activeScene();
         if (prev && prev.id === id) return;
+
+        // Toggle bottom bar visibility:
+        // - hide in memory levels to keep the frame clean
+        // - show in intro/hub/finale
+        const showBottom = (id === 'hub' || id === 'intro' || id === 'finale');
+        const bottomBar = document.getElementById('bottom-bar');
+        if (bottomBar){
+          bottomBar.style.display = showBottom ? 'flex' : 'none';
+        }
+        // Reserve space for overlays only when bar is visible
+        document.documentElement.style.setProperty('--bottom-ui-h', showBottom ? '' : '0px');
 
         // aria-hidden
         document.querySelectorAll('.scene').forEach(s => s.setAttribute('aria-hidden', 'true'));
