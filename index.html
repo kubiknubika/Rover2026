@@ -112,6 +112,22 @@
       }
     }
 
+    /* Levels: make overlay a bit lower to avoid covering faces on some photos */
+    section[id^="level-"] .overlay{
+      padding:44px 18px 28px;
+      height: clamp(260px, 52%, 480px);
+      max-height: 78%;
+      padding-bottom:calc(28px + env(safe-area-inset-bottom) + var(--kbd) + var(--bottom-ui-h));
+    }
+    @media (max-width: 640px){
+      section[id^="level-"] .overlay{
+        padding:38px 14px 24px;
+        height: clamp(280px, 64%, 560px);
+        max-height: 84%;
+        padding-bottom:calc(24px + env(safe-area-inset-bottom) + var(--kbd) + var(--bottom-ui-h));
+      }
+    }
+
     /* Stars */
     .star{
       --y: 0px;
@@ -434,7 +450,7 @@
         {
           id: 5,
           title: 'Воспоминание №5',
-          question: 'На чём любит играть Дядя Слава и Маша?',
+          question: 'На каком инструменте любят играть в нашей семье?',
           bg: 'level5.jpg',
           starY: 14,
           answers: ['гитара','на гитаре'],
