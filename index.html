@@ -314,6 +314,7 @@
   <audio id="music-level4" loop src="level4.mp3" preload="auto"></audio>
   <audio id="music-level5" loop src="level5.mp3" preload="auto"></audio>
   <audio id="music-level6" loop src="level6.mp3" preload="auto"></audio>
+  <audio id="music-level7" loop src="level7.mp3" preload="auto"></audio>
   <audio id="sfx-whoosh" src="whoosh.mp3" preload="auto"></audio>
   <audio id="sfx-hooray" src="hooray.mp3" preload="auto"></audio>
 
@@ -569,8 +570,8 @@
     // =================================================
     const CONFIG = {
       storageKey: 'svk-time-progress-v7',
-      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg'],
-      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3'],
+      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg', 'level7.jpg'],
+      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3', 'level7.mp3'],
       reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       sceneMs: 650
     };
@@ -775,6 +776,7 @@
           4: document.getElementById('music-level4'),
           5: document.getElementById('music-level5'),
           6: document.getElementById('music-level6'),
+          7: document.getElementById('music-level7'),
         }
       },
 
@@ -963,8 +965,9 @@
         this.stopAllLevelMusic();
 
         const m = this.audio.level[n];
-        // If there is no dedicated level music (e.g., level 7), keep hub music.
-        if (!m){
+
+        // Fallback to hub music if there's no track or browser reports "no source".
+        if (!m || m.networkState === 3){
           safePlay(this.audio.hub);
           return;
         }
