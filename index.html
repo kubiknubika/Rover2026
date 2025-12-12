@@ -20,10 +20,7 @@
       --app-h: 100vh; /* stable app height (JS may override with px) */
       --game-h: 85vh; /* stable game height (JS may override with px) */
       --fall-h: 95vh; /* snow fall distance fallback */
-
-      /* Reserved space for bottom controls (progress + sound).
-         JS temporarily sets this to 0px in levels when the bar is hidden. */
-      --bottom-ui-h: 72px;
+      --bottom-ui-h: 72px; /* reserved space for bottom controls */
     }
     @supports (height: 1svh){
       :root{ --app-h: 100svh; --game-h: 85svh; --fall-h: 95svh; }
@@ -71,7 +68,7 @@
     }
     #game-container.visible{display:block; animation:fadeIn 700ms ease}
 
-    /* Scenes: keep transitions simple on mobile to avoid viewport/compositor jitter */
+    /* Scenes */
     .scene{
       position:absolute;
       inset:0;
@@ -82,11 +79,7 @@
       pointer-events:none;
       transition: opacity var(--scene-ms) ease;
     }
-    .scene.active{
-      opacity:1;
-      pointer-events:auto;
-      z-index:10;
-    }
+    .scene.active{opacity:1; pointer-events:auto; z-index:10;}
     .scene.entering{opacity:0;}
     .scene.leaving{opacity:0; z-index:20; pointer-events:none;}
 
@@ -97,8 +90,7 @@
       display:flex; flex-direction:column; align-items:center; text-align:center;
       background:linear-gradient(to top, rgba(0,0,0,.96) 10%, rgba(0,0,0,.78) 55%, rgba(0,0,0,0) 100%);
 
-      /* FIX: prevent "jumping" when hint/message blocks appear/disappear.
-         Keep a stable overlay height and allow scrolling inside. */
+      /* Stable overlay height and allow scrolling inside */
       height: clamp(300px, 60%, 540px);
       max-height: 84%;
 
@@ -133,19 +125,9 @@
     }
     .star:hover{transform: translateY(var(--y)) scale(1.18); filter:grayscale(50%) brightness(.75)}
 
-    /* Garland layout in hub */
-    .garland{
-      position:absolute;
-      top:0;
-      left:0;
-      right:0;
-      height: 118px;
-      z-index:35;
-      pointer-events:none; /* stars will re-enable */
-    }
-    @media (max-width: 640px){
-      .garland{height: 104px;}
-    }
+    /* Garland */
+    .garland{position:absolute; top:0; left:0; right:0; height: 118px; z-index:35; pointer-events:none;}
+    @media (max-width: 640px){ .garland{height: 104px;} }
 
     .garland .wire{
       position:absolute;
@@ -183,14 +165,6 @@
       backdrop-filter: blur(8px);
     }
 
-    .garland .stars-row .star:nth-child(1){ transform: translateY(10px); }
-    .garland .stars-row .star:nth-child(2){ transform: translateY(34px); }
-    .garland .stars-row .star:nth-child(3){ transform: translateY(18px); }
-    .garland .stars-row .star:nth-child(4){ transform: translateY(44px); }
-    .garland .stars-row .star:nth-child(5){ transform: translateY(14px); }
-    .garland .stars-row .star:nth-child(6){ transform: translateY(40px); }
-    .garland .stars-row .star:nth-child(7){ transform: translateY(22px); }
-
     @keyframes glow{
       from{ text-shadow:0 0 14px gold, 0 0 28px orange; }
       to{ text-shadow:0 0 30px gold, 0 0 60px orange, 0 0 80px rgba(255,255,0,.75); }
@@ -198,15 +172,7 @@
     .star.completed{filter:none; animation:glow 2s infinite alternate; }
 
     /* Snow */
-    .snowflake{
-      position:absolute;
-      top:-20px;
-      pointer-events:none;
-      z-index:30;
-      animation:fall linear infinite;
-      will-change: transform;
-      transform: translateZ(0);
-    }
+    .snowflake{position:absolute; top:-20px; pointer-events:none; z-index:30; animation:fall linear infinite; will-change: transform; transform: translateZ(0);}
     @keyframes fall{to{transform:translateY(var(--fall-h))}}
 
     /* Reduced motion */
@@ -215,44 +181,20 @@
       .scene{filter:none !important; transform:none !important;}
     }
 
-    /* Input focus */
+    /* Inputs */
     .answer-input:focus{outline:none; box-shadow:0 0 0 2px rgba(255,215,0,.35)}
 
     /* Toast */
-    /* Place toast above the bottom controls bar */
-    .toast{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      bottom:calc(var(--bottom-ui-h) + 14px + env(safe-area-inset-bottom));
-      z-index:60;
-      opacity:0;
-      pointer-events:none;
-      transition:opacity .25s ease, transform .25s ease;
-    }
+    .toast{position:absolute; left:50%; transform:translateX(-50%); bottom:calc(var(--bottom-ui-h) + 14px + env(safe-area-inset-bottom)); z-index:60; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;}
     .toast.show{opacity:1; transform:translateX(-50%) translateY(-2px)}
 
-    /* Bottom controls bar (progress + sound) */
-    #bottom-bar{
-      position:absolute;
-      left:0; right:0;
-      bottom:0;
-      z-index:55;
-      padding: 10px 12px;
-      padding-bottom: calc(10px + env(safe-area-inset-bottom));
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-end;
-      gap:10px;
-      pointer-events:none;
-    }
+    /* Bottom controls bar */
+    #bottom-bar{position:absolute; left:0; right:0; bottom:0; z-index:55; padding: 10px 12px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); display:flex; justify-content:space-between; align-items:flex-end; gap:10px; pointer-events:none;}
     #bottom-bar > *{pointer-events:auto;}
 
-    /* Simple shake */
     @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(6px)}50%{transform:translateX(-6px)}75%{transform:translateX(4px)}}
     .shake{animation:shake .25s ease}
 
-    /* Mini progress */
     .progress-pill{backdrop-filter: blur(8px);}
 
     /* Name stream (finale) */
@@ -277,6 +219,9 @@
 
     /* Physics cup */
     #cup-canvas canvas{display:block; width:100% !important; height:100% !important;}
+
+    /* Utility: hide focus outline on mouse, keep for keyboard */
+    :focus:not(:focus-visible){outline:none}
   </style>
 </head>
 
@@ -306,7 +251,7 @@
     </div>
   </div>
 
-  <!-- ========== AUDIO (preload hints, will be played only after user gesture) ========== -->
+  <!-- ========== AUDIO ========== -->
   <audio id="music-hub" loop src="music.mp3" preload="auto"></audio>
   <audio id="music-level1" loop src="level1.mp3" preload="auto"></audio>
   <audio id="music-level2" loop src="level2.mp3" preload="auto"></audio>
@@ -322,9 +267,7 @@
   <div id="game-container" role="application" aria-label="Сквозь время">
 
     <!-- Toast / status -->
-    <div id="toast" class="toast">
-      <div class="px-4 py-2 rounded-full bg-black/60 border border-white/10 text-sm text-white/90 shadow-lg">—</div>
-    </div>
+    <div id="toast" class="toast"><div class="px-4 py-2 rounded-full bg-black/60 border border-white/10 text-sm text-white/90 shadow-lg">—</div></div>
 
     <!-- Bottom controls bar (progress + sound) -->
     <div id="bottom-bar" aria-label="Панель управления">
@@ -350,7 +293,7 @@
     </div>
 
     <!-- Intro -->
-    <section id="intro" class="scene active" aria-label="Интро" data-bg="1.jpg">
+    <section id="intro" class="scene active" aria-label="Интро" data-bg="1.jpg" aria-hidden="false">
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl" style="text-shadow:0 2px 4px rgba(0,0,0,.9)">Буффало. 23:55</h2>
         <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95" style="text-shadow:0 2px 4px rgba(0,0,0,.9)">
@@ -363,21 +306,13 @@
     </section>
 
     <!-- Hub -->
-    <section id="hub" class="scene" aria-label="Хаб" data-bg="hub.jpg">
+    <section id="hub" class="scene" aria-label="Хаб" data-bg="hub.jpg" aria-hidden="true">
       <div class="w-full h-full p-[5%] relative flex items-center justify-center">
 
-        <!-- Garland of stars (top) -->
+        <!-- Garland of stars -->
         <div class="garland" aria-hidden="false">
           <div class="wire"></div>
-          <div class="stars-row">
-            <button class="star" style="--y:10px" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
-            <button class="star" style="--y:34px" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
-            <button class="star" style="--y:18px" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
-            <button class="star" style="--y:44px" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
-            <button class="star" style="--y:14px" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
-            <button class="star" style="--y:40px" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
-            <button class="star" style="--y:22px" data-level="7" aria-label="Воспоминание 7" type="button">⭐</button>
-          </div>
+          <div id="stars-row" class="stars-row"></div>
         </div>
 
         <!-- Center -->
@@ -403,135 +338,11 @@
       </div>
     </section>
 
-    <!-- Levels -->
-    <section id="level-1" class="scene" data-bg="level1.jpg" aria-label="Уровень 1">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №1</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Куда мы с тобой ездили в 2014 году?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" inputmode="text" autocomplete="off" id="ans-1" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-1">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="1" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-1" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-1" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="1" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-2" class="scene" data-bg="level2.jpg" aria-label="Уровень 2">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №2</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">На чём мы катались в Египте?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-2" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-2">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="2" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-2" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-2" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="2" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-3" class="scene" data-bg="level3.jpg" aria-label="Уровень 3">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №3</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какое историческое место мы увидели на НГ?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-3" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-3">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="3" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-3" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-3" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="3" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-4" class="scene" data-bg="level4.jpg" aria-label="Уровень 4">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №4</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Что необычного мы увидели на Новый год?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-4" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-4">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="4" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-4" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-4" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="4" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-5" class="scene" data-bg="level5.jpg" aria-label="Уровень 5">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №5</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">На чём любит играть Дядя Слава и Маша?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-5" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-5">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="5" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-5" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-5" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="5" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-6" class="scene" data-bg="level6.jpg" aria-label="Уровень 6">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №6</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какой салат мама любит делать на Новый год?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-6" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-6">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="6" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-6" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-6" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="6" type="button">Ответить</button>
-      </div>
-    </section>
-
-    <section id="level-7" class="scene" data-bg="level7.jpg" aria-label="Уровень 7">
-      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
-      <div class="overlay">
-        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №7</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Самое главное. Что связывает нас навсегда?</p>
-        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-7" placeholder="Твой ответ..." />
-
-        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
-          <span>Попытки: <span id="attempts-7">0</span></span>
-          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="7" type="button">Показать подсказку</button>
-        </div>
-        <div id="hint-7" class="mt-2 hidden text-sm text-white/85"></div>
-
-        <div id="msg-7" class="mt-2 h-7 font-bold"></div>
-        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="7" type="button">Ответить</button>
-      </div>
-    </section>
+    <!-- Levels are generated here -->
+    <div id="levels-root" aria-label="Уровни"></div>
 
     <!-- Finale -->
-    <section id="finale" class="scene" aria-label="Финал" data-bg="hub_open.jpg">
+    <section id="finale" class="scene" aria-label="Финал" data-bg="hub_open.jpg" aria-hidden="true">
       <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
 
       <!-- Floating name runners -->
@@ -565,1028 +376,1142 @@
   </div>
 
   <script>
-    // =================================================
-    // CONFIG
-    // =================================================
-    const CONFIG = {
-      storageKey: 'svk-time-progress-v7',
-      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg', 'level7.jpg'],
-      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3', 'level7.mp3'],
-      reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-      sceneMs: 650
-    };
+    (function(){
+      'use strict';
 
-    // 7 воспоминаний
-    const LEVELS = {
-      1: {
-        answers: ['крит', 'остров крит', 'греция'],
-        hints: ['Подсказка: Там был лабиринт минотавра.', 'Ещё подсказка: Это греческий остров.']
-      },
-      2: {
-        answers: ['верблюд', 'верблюды'],
-        hints: ['Подсказка: На них было тяжело залезать.', 'Ещё подсказка: Обычно они катают туристов в пустыне.']
-      },
-      3: {
-        answers: ['большой театр', 'государственный академический большой театр россии'],
-        hints: ['Подсказка: Один из самых значимых в мире оперы и балета.', 'Ещё подсказка: Это «Большой».']
-      },
-      4: {
-        answers: ['трава', 'траву'],
-        hints: ['Подсказка: Обычно она только летом.', 'Ещё подсказка: Она зелёная 🙂']
-      },
-      5: {
-        answers: ['гитара', 'на гитаре'],
-        hints: ['Подсказка: Шесть струн.', 'Ещё подсказка: На ней играют аккордами.']
-      },
-      6: {
-        answers: ['оливье', 'салат оливье'],
-        hints: ['Подсказка: Там есть докторская колбаса.', 'Ещё подсказка: Самый новогодний салат.']
-      },
-      7: {
-        answers: ['семья'],
-        hints: ['Подсказка: Мы — это...', 'Ещё подсказка: Самое родное слово.']
-      }
-    };
+      // =================================================
+      // CONFIG + CONTENT (data-driven)
+      // =================================================
+      const CONFIG = {
+        storageKey: 'svk-time-progress-v7',
+        sceneMs: 650,
+        reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+        images: ['1.jpg','hub.jpg','hub_open.jpg','level1.jpg','level2.jpg','level3.jpg','level4.jpg','level5.jpg','level6.jpg','level7.jpg'],
+        sounds: ['music.mp3','whoosh.mp3','hooray.mp3','level1.mp3','level2.mp3','level3.mp3','level4.mp3','level5.mp3','level6.mp3','level7.mp3'],
+      };
 
-    const TOTAL_LEVELS = Object.keys(LEVELS).length;
-
-    // =================================================
-    // HELPERS
-    // =================================================
-    function normalizeAnswer(s){
-      return (s || '')
-        .toLowerCase()
-        .trim()
-        .replace(/ё/g,'е')
-        .replace(/[\p{P}\p{S}]+/gu, ' ')
-        .replace(/\s+/g, ' ');
-    }
-
-    function safePlay(audio){
-      if (!audio) return;
-      try{
-        const p = audio.play();
-        if (p && typeof p.catch === 'function') p.catch(()=>{});
-      }catch(e){}
-    }
-
-    function safePause(audio){
-      if (!audio) return;
-      try{ audio.pause(); }catch(e){}
-    }
-
-    // Viewport stabilization:
-    // 1) Freeze app/game heights in px based on the initial stable viewport (prevents toolbar show/hide from causing jumps).
-    // 2) Keyboard handling: lock padding once per focus (prevents VisualViewport jitter from bouncing UI).
-    let __lastKbd = -1;
-    let __frozen = false;
-    let __inputFocused = false;
-    let __kbdSampleTimer = null;
-
-    function freezeHeights(){
-      if (__frozen) return;
-      const vv = window.visualViewport;
-      const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight);
-      const appH = Math.max(520, h);
-      const gameH = Math.round(appH * 0.85);
-      document.documentElement.style.setProperty('--app-h', appH + 'px');
-      document.documentElement.style.setProperty('--game-h', gameH + 'px');
-      __frozen = true;
-    }
-
-    // Keeps derived viewport variables consistent with frozen px heights.
-    // IMPORTANT: Must exist because we call it during init/orientationchange.
-    function setViewportVars(){
-      try{
-        const appH = getComputedStyle(document.documentElement).getPropertyValue('--app-h').trim();
-        const m = appH.match(/^(\d+)px$/);
-        if (m){
-          const appPx = Number(m[1]) || window.innerHeight;
-          const fallPx = Math.round(appPx * 0.95);
-          document.documentElement.style.setProperty('--fall-h', fallPx + 'px');
+      /**
+       * Each level: id, question, bg, answers, hints, starY
+       * (starY is only for garland positioning)
+       */
+      const LEVELS = [
+        {
+          id: 1,
+          title: 'Воспоминание №1',
+          question: 'Куда мы с тобой ездили в 2014 году?',
+          bg: 'level1.jpg',
+          starY: 10,
+          answers: ['крит','остров крит','греция'],
+          hints: ['Подсказка: Там был лабиринт минотавра.','Ещё подсказка: Это греческий остров.']
+        },
+        {
+          id: 2,
+          title: 'Воспоминание №2',
+          question: 'На чём мы катались в Египте?',
+          bg: 'level2.jpg',
+          starY: 34,
+          answers: ['верблюд','верблюды'],
+          hints: ['Подсказка: На них было тяжело залезать.','Ещё подсказка: Обычно они катают туристов в пустыне.']
+        },
+        {
+          id: 3,
+          title: 'Воспоминание №3',
+          question: 'Какое историческое место мы увидели на НГ?',
+          bg: 'level3.jpg',
+          starY: 18,
+          answers: ['большой театр','государственный академический большой театр россии'],
+          hints: ['Подсказка: Один из самых значимых в мире оперы и балета.','Ещё подсказка: Это «Большой».']
+        },
+        {
+          id: 4,
+          title: 'Воспоминание №4',
+          question: 'Что необычного мы увидели на Новый год?',
+          bg: 'level4.jpg',
+          starY: 44,
+          answers: ['трава','траву'],
+          hints: ['Подсказка: Обычно она только летом.','Ещё подсказка: Она зелёная 🙂']
+        },
+        {
+          id: 5,
+          title: 'Воспоминание №5',
+          question: 'На чём любит играть Дядя Слава и Маша?',
+          bg: 'level5.jpg',
+          starY: 14,
+          answers: ['гитара','на гитаре'],
+          hints: ['Подсказка: Шесть струн.','Ещё подсказка: На ней играют аккордами.']
+        },
+        {
+          id: 6,
+          title: 'Воспоминание №6',
+          question: 'Какой салат мама любит делать на Новый год?',
+          bg: 'level6.jpg',
+          starY: 40,
+          answers: ['оливье','салат оливье'],
+          hints: ['Подсказка: Там есть докторская колбаса.','Ещё подсказка: Самый новогодний салат.']
+        },
+        {
+          id: 7,
+          title: 'Воспоминание №7',
+          question: 'Самое главное. Что связывает нас навсегда?',
+          bg: 'level7.jpg',
+          starY: 22,
+          answers: ['семья'],
+          hints: ['Подсказка: Мы — это...','Ещё подсказка: Самое родное слово.']
         }
-      }catch(e){}
-    }
+      ];
 
-    function applyKbdPx(kbdPx){
-      const k = Math.max(0, Math.round(kbdPx));
-      // Ignore tiny values (address bar, small resizes)
-      const normalized = (k < 140) ? 0 : (Math.round(k / 10) * 10);
-      if (__lastKbd < 0 || normalized !== __lastKbd){
-        document.documentElement.style.setProperty('--kbd', normalized + 'px');
-        __lastKbd = normalized;
+      const TOTAL_LEVELS = LEVELS.length;
+
+      // =================================================
+      // HELPERS
+      // =================================================
+      const $ = (sel, root=document) => root.querySelector(sel);
+      const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+      function clamp(n, a, b){ return Math.min(b, Math.max(a, n)); }
+
+      function normalizeAnswer(s){
+        return (s || '')
+          .toLowerCase()
+          .trim()
+          .replace(/ё/g,'е')
+          .replace(/[\p{P}\p{S}]+/gu, ' ')
+          .replace(/\s+/g, ' ');
       }
-    }
 
-    function lockKeyboardHeightOnce(){
-      if (!__inputFocused) return;
-      const vv = window.visualViewport;
-      if (!vv){
+      function safePlay(audio){
+        if (!audio) return;
+        try{
+          const p = audio.play();
+          if (p && typeof p.catch === 'function') p.catch(()=>{});
+        }catch(e){}
+      }
+
+      function safePause(audio){
+        if (!audio) return;
+        try{ audio.pause(); }catch(e){}
+      }
+
+      function randBallColor(){
+        const h = Math.floor(Math.random()*360);
+        const s = 82;
+        const l = 46 + Math.random()*22;
+        return `hsl(${h} ${s}% ${l}%)`;
+      }
+
+      function textColorForHsl(hsl){
+        const m = String(hsl).match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/i);
+        const l = m ? Number(m[3]) : 60;
+        return l > 58 ? '#101010' : '#ffffff';
+      }
+
+      function truncateForBall(name){
+        const s = (name || '').trim();
+        if (!s) return '';
+        return s.length > 10 ? (s.slice(0, 10) + '…') : s;
+      }
+
+      // =================================================
+      // VIEWPORT STABILIZATION (mobile)
+      // =================================================
+      let __lastKbd = -1;
+      let __frozen = false;
+      let __inputFocused = false;
+      let __kbdSampleTimer = null;
+
+      function freezeHeights(){
+        if (__frozen) return;
+        const vv = window.visualViewport;
+        const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight);
+        const appH = Math.max(520, h);
+        const gameH = Math.round(appH * 0.85);
+        document.documentElement.style.setProperty('--app-h', appH + 'px');
+        document.documentElement.style.setProperty('--game-h', gameH + 'px');
+        __frozen = true;
+      }
+
+      function setViewportVars(){
+        try{
+          const appH = getComputedStyle(document.documentElement).getPropertyValue('--app-h').trim();
+          const m = appH.match(/^(\d+)px$/);
+          if (m){
+            const appPx = Number(m[1]) || window.innerHeight;
+            document.documentElement.style.setProperty('--fall-h', Math.round(appPx * 0.95) + 'px');
+          }
+        }catch(e){}
+      }
+
+      function applyKbdPx(kbdPx){
+        const k = Math.max(0, Math.round(kbdPx));
+        const normalized = (k < 140) ? 0 : (Math.round(k / 10) * 10);
+        if (__lastKbd < 0 || normalized !== __lastKbd){
+          document.documentElement.style.setProperty('--kbd', normalized + 'px');
+          __lastKbd = normalized;
+        }
+      }
+
+      function lockKeyboardHeightOnce(){
+        if (!__inputFocused) return;
+        const vv = window.visualViewport;
+        if (!vv){ applyKbdPx(0); return; }
+
+        let samples = 0;
+        let maxKbd = 0;
+
+        clearInterval(__kbdSampleTimer);
+        __kbdSampleTimer = setInterval(() => {
+          const current = Math.max(0, Math.round(window.innerHeight - vv.height));
+          maxKbd = Math.max(maxKbd, current);
+          samples++;
+          if (samples >= 10){
+            clearInterval(__kbdSampleTimer);
+            __kbdSampleTimer = null;
+            applyKbdPx(maxKbd);
+          }
+        }, 60);
+      }
+
+      function resetKeyboardPadding(){
+        clearInterval(__kbdSampleTimer);
+        __kbdSampleTimer = null;
         applyKbdPx(0);
-        return;
       }
 
-      // Sample for a short time and keep the maximum.
-      // (Keyboards can change height slightly due to suggestion bars, language switch, etc.)
-      let samples = 0;
-      let maxKbd = 0;
+      // =================================================
+      // APP
+      // =================================================
+      const app = {
+        el: {},
+        audio: {},
+        state: {
+          started: false,
+          muted: false,
+          volume: 0.4,
+          currentLevelId: null,
+          completed: Array(TOTAL_LEVELS).fill(false),
+          attempts: Array(TOTAL_LEVELS).fill(0),
+          snowTimer: null,
+          physicsReady: false,
+        },
+        physics: {
+          engine: null,
+          runner: null,
+          render: null,
+          balls: [],
+          afterRenderHandler: null,
+          cup: { x:0, y:0, w:0, h:0 }
+        },
+        _toastTimer: null,
+        _orientationBound: false,
 
-      clearInterval(__kbdSampleTimer);
-      __kbdSampleTimer = setInterval(() => {
-        const current = Math.max(0, Math.round(window.innerHeight - vv.height));
-        maxKbd = Math.max(maxKbd, current);
-        samples++;
+        // ---------- DOM rendering ----------
+        renderStars(){
+          const row = this.el.starsRow;
+          if (!row) return;
+          row.innerHTML = '';
 
-        if (samples >= 10){
-          clearInterval(__kbdSampleTimer);
-          __kbdSampleTimer = null;
-          applyKbdPx(maxKbd);
-        }
-      }, 60);
-    }
-
-    function resetKeyboardPadding(){
-      clearInterval(__kbdSampleTimer);
-      __kbdSampleTimer = null;
-      applyKbdPx(0);
-    }
-
-    function randBallColor(){
-      const h = Math.floor(Math.random()*360);
-      const s = 82;
-      const l = 46 + Math.random()*22; // 46..68
-      return `hsl(${h} ${s}% ${l}%)`;
-    }
-
-    function textColorForHsl(hsl){
-      const m = String(hsl).match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/i);
-      const l = m ? Number(m[3]) : 60;
-      return l > 58 ? '#101010' : '#ffffff';
-    }
-
-    function truncateForBall(name){
-      const s = (name || '').trim();
-      if (!s) return '';
-      return s.length > 10 ? (s.slice(0, 10) + '…') : s;
-    }
-
-    // =================================================
-    // GAME ENGINE
-    // =================================================
-    const game = {
-      el: {
-        container: document.getElementById('game-container'),
-        loading: document.getElementById('loading-screen'),
-        progressBar: document.getElementById('progress-bar'),
-        progressText: document.getElementById('progress-text'),
-        startBtn: document.getElementById('start-button'),
-        muteOnStartBtn: document.getElementById('mute-on-start'),
-        skipPreload: document.getElementById('skip-preload'),
-        toast: document.getElementById('toast'),
-        toastInner: document.querySelector('#toast > div'),
-
-        btnOpen: document.getElementById('btn-open'),
-        finalBtn: document.getElementById('final-btn'),
-        resetBtn: document.getElementById('reset-btn'),
-        btnMute: document.getElementById('btn-mute'),
-        muteIcon: document.getElementById('mute-icon'),
-        volume: document.getElementById('volume'),
-
-        miniProgressText: document.getElementById('mini-progress-text'),
-        miniProgressBar: document.getElementById('mini-progress-bar'),
-        hubProgressText: document.getElementById('hub-progress-text'),
-        hubProgressBar: document.getElementById('hub-progress-bar'),
-
-        finalName: document.getElementById('final-name'),
-        finalSave: document.getElementById('final-save'),
-        finalNote: document.getElementById('final-note'),
-        backToHub: document.getElementById('back-to-hub'),
-        nameStream: document.getElementById('name-stream'),
-        cupCanvasWrap: document.getElementById('cup-canvas'),
-      },
-
-      audio: {
-        hub: document.getElementById('music-hub'),
-        sfxWhoosh: document.getElementById('sfx-whoosh'),
-        sfxHooray: document.getElementById('sfx-hooray'),
-        level: {
-          1: document.getElementById('music-level1'),
-          2: document.getElementById('music-level2'),
-          3: document.getElementById('music-level3'),
-          4: document.getElementById('music-level4'),
-          5: document.getElementById('music-level5'),
-          6: document.getElementById('music-level6'),
-          7: document.getElementById('music-level7'),
-        }
-      },
-
-      state: {
-        started: false,
-        muted: false,
-        volume: 0.4,
-        currentLevel: null,
-        completed: Array(TOTAL_LEVELS).fill(false),
-        attempts: Array(TOTAL_LEVELS).fill(0),
-        snowTimer: null,
-        physicsReady: false,
-      },
-
-      physics: {
-        engine: null,
-        runner: null,
-        render: null,
-        balls: [],
-        afterRenderHandler: null,
-        cup: { x:0, y:0, w:0, h:0 }
-      },
-
-      // -------- Storage --------
-      loadState(){
-        try{
-          const raw = localStorage.getItem(CONFIG.storageKey);
-          if (!raw) return;
-          const data = JSON.parse(raw);
-
-          // Migrate/normalize arrays to TOTAL_LEVELS
-          if (Array.isArray(data.completed)){
-            const arr = data.completed.map(Boolean);
-            this.state.completed = Array.from({length: TOTAL_LEVELS}, (_, i) => !!arr[i]);
+          for (const lvl of LEVELS){
+            const b = document.createElement('button');
+            b.type = 'button';
+            b.className = 'star';
+            b.style.setProperty('--y', lvl.starY + 'px');
+            b.dataset.action = 'go-level';
+            b.dataset.level = String(lvl.id);
+            b.setAttribute('aria-label', `Воспоминание ${lvl.id}`);
+            b.textContent = '⭐';
+            row.appendChild(b);
           }
-          if (Array.isArray(data.attempts)){
-            const arr = data.attempts.map(n => Number(n)||0);
-            this.state.attempts = Array.from({length: TOTAL_LEVELS}, (_, i) => arr[i] || 0);
+        },
+
+        renderLevels(){
+          const root = this.el.levelsRoot;
+          if (!root) return;
+          root.innerHTML = '';
+
+          for (const lvl of LEVELS){
+            const section = document.createElement('section');
+            section.id = `level-${lvl.id}`;
+            section.className = 'scene';
+            section.dataset.bg = lvl.bg;
+            section.setAttribute('aria-label', `Уровень ${lvl.id}`);
+            section.setAttribute('aria-hidden', 'true');
+
+            section.innerHTML = `
+              <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+              <div class="overlay">
+                <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">${lvl.title}</h2>
+                <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">${lvl.question}</p>
+
+                <input
+                  class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="off"
+                  id="ans-${lvl.id}"
+                  placeholder="Твой ответ..."
+                  data-level="${lvl.id}"
+                />
+
+                <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+                  <span>Попытки: <span id="attempts-${lvl.id}">0</span></span>
+                  <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-action="toggle-hint" data-level="${lvl.id}" type="button">Показать подсказку</button>
+                </div>
+
+                <div id="hint-${lvl.id}" class="mt-2 hidden text-sm text-white/85"></div>
+
+                <div id="msg-${lvl.id}" class="mt-2 h-7 font-bold"></div>
+
+                <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-action="answer" data-level="${lvl.id}" type="button">Ответить</button>
+              </div>
+            `;
+
+            root.appendChild(section);
           }
+        },
 
-          if (typeof data.muted === 'boolean') this.state.muted = data.muted;
-          if (typeof data.volume === 'number') this.state.volume = Math.min(1, Math.max(0, data.volume));
-          if (typeof data.name === 'string') this.el.finalName.value = data.name;
-        }catch(e){}
-      },
+        // ---------- Storage ----------
+        loadState(){
+          try{
+            const raw = localStorage.getItem(CONFIG.storageKey);
+            if (!raw) return;
+            const data = JSON.parse(raw);
 
-      saveState(extra={}){
-        try{
-          const data = {
-            completed: this.state.completed,
-            attempts: this.state.attempts,
-            muted: this.state.muted,
-            volume: this.state.volume,
-            name: this.el.finalName.value || '',
-            ...extra,
-          };
-          localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
-        }catch(e){}
-      },
+            if (Array.isArray(data.completed)){
+              const arr = data.completed.map(Boolean);
+              this.state.completed = Array.from({length: TOTAL_LEVELS}, (_, i) => !!arr[i]);
+            }
+            if (Array.isArray(data.attempts)){
+              const arr = data.attempts.map(n => Number(n)||0);
+              this.state.attempts = Array.from({length: TOTAL_LEVELS}, (_, i) => arr[i] || 0);
+            }
+            if (typeof data.muted === 'boolean') this.state.muted = data.muted;
+            if (typeof data.volume === 'number') this.state.volume = clamp(data.volume, 0, 1);
+            if (typeof data.name === 'string') this.el.finalName.value = data.name;
+          }catch(e){}
+        },
 
-      resetProgress(){
-        this.state.completed = Array(TOTAL_LEVELS).fill(false);
-        this.state.attempts = Array(TOTAL_LEVELS).fill(0);
-        this.saveState();
-        this.syncHubUI();
-        this.toast('Прогресс сброшен');
-      },
+        saveState(extra={}){
+          try{
+            const data = {
+              completed: this.state.completed,
+              attempts: this.state.attempts,
+              muted: this.state.muted,
+              volume: this.state.volume,
+              name: this.el.finalName.value || '',
+              ...extra,
+            };
+            localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+          }catch(e){}
+        },
 
-      // -------- UI --------
-      toast(text){
-        if (!this.el.toast || !this.el.toastInner) return;
-        this.el.toastInner.textContent = text;
-        this.el.toast.classList.add('show');
-        clearTimeout(this._toastTimer);
-        this._toastTimer = setTimeout(()=> this.el.toast.classList.remove('show'), 1600);
-      },
+        resetProgress(){
+          this.state.completed = Array(TOTAL_LEVELS).fill(false);
+          this.state.attempts = Array(TOTAL_LEVELS).fill(0);
+          this.saveState();
+          this.syncHubUI();
+          this.toast('Прогресс сброшен');
+        },
 
-      activeScene(){
-        return document.querySelector('.scene.active');
-      },
+        // ---------- Toast ----------
+        toast(text){
+          if (!this.el.toast || !this.el.toastInner) return;
+          this.el.toastInner.textContent = text;
+          this.el.toast.classList.add('show');
+          clearTimeout(this._toastTimer);
+          this._toastTimer = setTimeout(() => this.el.toast.classList.remove('show'), 1600);
+        },
 
-      showScene(id){
-        const next = document.getElementById(id);
-        if (!next) return;
-        const prev = this.activeScene();
-        if (prev && prev.id === id) return;
+        // ---------- Scenes ----------
+        activeScene(){
+          return $('.scene.active');
+        },
 
-        // Toggle bottom bar visibility:
-        // - hide in memory levels to keep the frame clean
-        // - show in intro/hub/finale
-        const showBottom = (id === 'hub' || id === 'intro' || id === 'finale');
-        const bottomBar = document.getElementById('bottom-bar');
-        if (bottomBar){
-          bottomBar.style.display = showBottom ? 'flex' : 'none';
-        }
-        // Reserve space for overlays only when bar is visible
-        document.documentElement.style.setProperty('--bottom-ui-h', showBottom ? '' : '0px');
+        setBackground(src){
+          this.el.container.style.backgroundImage = `url("${src}")`;
+        },
 
-        // aria-hidden
-        document.querySelectorAll('.scene').forEach(s => s.setAttribute('aria-hidden', 'true'));
-        next.setAttribute('aria-hidden', 'false');
+        setBottomBarVisible(visible){
+          if (!this.el.bottomBar) return;
+          this.el.bottomBar.style.display = visible ? 'flex' : 'none';
+          if (visible) document.documentElement.style.removeProperty('--bottom-ui-h');
+          else document.documentElement.style.setProperty('--bottom-ui-h', '0px');
+        },
 
-        // Background: from scene data-bg
-        const bg = next.dataset && next.dataset.bg ? next.dataset.bg : null;
-        if (bg) this.setBackground(bg);
+        showScene(id){
+          const next = document.getElementById(id);
+          if (!next) return;
+          const prev = this.activeScene();
+          if (prev && prev.id === id) return;
 
-        // prepare enter
-        next.classList.add('active', 'entering');
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => next.classList.remove('entering'));
-        });
+          const showBottom = (id === 'hub' || id === 'intro' || id === 'finale');
+          this.setBottomBarVisible(showBottom);
 
-        if (prev){
-          prev.classList.add('leaving');
-          setTimeout(() => {
-            prev.classList.remove('active', 'leaving');
-          }, CONFIG.sceneMs);
-        }
-      },
+          $$('.scene').forEach(s => s.setAttribute('aria-hidden', 'true'));
+          next.setAttribute('aria-hidden', 'false');
 
-      setBackground(src){
-        this.el.container.style.backgroundImage = `url("${src}")`;
-      },
+          const bg = next.dataset && next.dataset.bg ? next.dataset.bg : null;
+          if (bg) this.setBackground(bg);
 
-      syncAudioUI(){
-        this.el.btnMute.setAttribute('aria-pressed', String(this.state.muted));
-        this.el.muteIcon.textContent = this.state.muted ? '🔇' : '🔊';
-        if (this.el.volume) this.el.volume.value = String(this.state.volume);
+          next.classList.add('active', 'entering');
+          requestAnimationFrame(() => requestAnimationFrame(() => next.classList.remove('entering')));
 
-        const all = [this.audio.hub, this.audio.sfxWhoosh, this.audio.sfxHooray, ...Object.values(this.audio.level)];
-        all.forEach(a => {
-          if (!a) return;
-          a.muted = this.state.muted;
-          if (a === this.audio.sfxWhoosh) a.volume = Math.min(1, this.state.volume + 0.3);
-          else if (a === this.audio.sfxHooray) a.volume = Math.min(1, this.state.volume + 0.25);
-          else a.volume = this.state.volume;
-        });
-      },
+          if (prev){
+            prev.classList.add('leaving');
+            setTimeout(() => prev.classList.remove('active', 'leaving'), CONFIG.sceneMs);
+          }
+        },
 
-      syncProgressUI(){
-        const done = this.state.completed.filter(Boolean).length;
-        const pct = Math.round((done / TOTAL_LEVELS) * 100);
-        if (this.el.miniProgressText) this.el.miniProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
-        if (this.el.miniProgressBar) this.el.miniProgressBar.style.width = pct + '%';
-        if (this.el.hubProgressText) this.el.hubProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
-        if (this.el.hubProgressBar) this.el.hubProgressBar.style.width = pct + '%';
-      },
+        // ---------- Audio ----------
+        syncAudioUI(){
+          this.el.btnMute.setAttribute('aria-pressed', String(this.state.muted));
+          this.el.muteIcon.textContent = this.state.muted ? '🔇' : '🔊';
+          if (this.el.volume) this.el.volume.value = String(this.state.volume);
 
-      syncHubUI(){
-        document.querySelectorAll('.star').forEach(star => {
-          const lvl = Number(star.dataset.level);
-          const done = this.state.completed[lvl-1];
-          star.classList.toggle('completed', !!done);
-        });
+          const all = [
+            this.audio.hub,
+            this.audio.sfxWhoosh,
+            this.audio.sfxHooray,
+            ...Object.values(this.audio.level)
+          ];
 
-        const allDone = this.state.completed.slice(0, TOTAL_LEVELS).every(Boolean);
-        if (allDone) this.el.finalBtn.classList.remove('hidden');
-        else this.el.finalBtn.classList.add('hidden');
+          all.forEach(a => {
+            if (!a) return;
+            a.muted = this.state.muted;
+            if (a === this.audio.sfxWhoosh) a.volume = Math.min(1, this.state.volume + 0.3);
+            else if (a === this.audio.sfxHooray) a.volume = Math.min(1, this.state.volume + 0.25);
+            else a.volume = this.state.volume;
+          });
+        },
 
-        this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
-        this.syncProgressUI();
-      },
+        stopAllLevelMusic(){
+          Object.values(this.audio.level).forEach(m => {
+            safePause(m);
+            try{ m.currentTime = 0; }catch(e){}
+          });
+        },
 
-      syncLevelMeta(n){
-        const a = this.state.attempts[n-1] || 0;
-        const attemptsEl = document.getElementById('attempts-' + n);
-        if (attemptsEl) attemptsEl.textContent = String(a);
-
-        const hintEl = document.getElementById('hint-' + n);
-        if (hintEl){
-          const hints = (LEVELS[n] && LEVELS[n].hints) ? LEVELS[n].hints : [];
-          const idx = a >= 2 ? 1 : 0;
-          hintEl.textContent = hints[idx] || '';
-        }
-      },
-
-      // -------- Audio control --------
-      stopAllLevelMusic(){
-        Object.values(this.audio.level).forEach(m => {
-          safePause(m);
+        playLevelMusic(n){
+          this.stopAllLevelMusic();
+          const m = this.audio.level[n];
+          if (!m || m.networkState === 3){
+            safePlay(this.audio.hub);
+            return;
+          }
+          safePause(this.audio.hub);
           try{ m.currentTime = 0; }catch(e){}
-        });
-      },
+          safePlay(m);
+        },
 
-      playLevelMusic(n){
-        this.stopAllLevelMusic();
+        // ---------- Progress UI ----------
+        syncProgressUI(){
+          const done = this.state.completed.filter(Boolean).length;
+          const pct = Math.round((done / TOTAL_LEVELS) * 100);
+          if (this.el.miniProgressText) this.el.miniProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
+          if (this.el.miniProgressBar) this.el.miniProgressBar.style.width = pct + '%';
+          if (this.el.hubProgressText) this.el.hubProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
+          if (this.el.hubProgressBar) this.el.hubProgressBar.style.width = pct + '%';
+        },
 
-        const m = this.audio.level[n];
+        syncHubUI(){
+          $$('.star', this.el.starsRow).forEach(star => {
+            const lvl = Number(star.dataset.level);
+            const done = this.state.completed[lvl - 1];
+            star.classList.toggle('completed', !!done);
+          });
 
-        // Fallback to hub music if there's no track or browser reports "no source".
-        if (!m || m.networkState === 3){
+          const allDone = this.state.completed.every(Boolean);
+          this.el.finalBtn.classList.toggle('hidden', !allDone);
+          this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
+          this.syncProgressUI();
+        },
+
+        syncLevelMeta(n){
+          const idx = n - 1;
+          const attempts = this.state.attempts[idx] || 0;
+
+          const attemptsEl = document.getElementById('attempts-' + n);
+          if (attemptsEl) attemptsEl.textContent = String(attempts);
+
+          const hintEl = document.getElementById('hint-' + n);
+          const lvl = LEVELS.find(x => x.id === n);
+          if (hintEl && lvl){
+            const hintIdx = attempts >= 2 ? 1 : 0;
+            hintEl.textContent = (lvl.hints && lvl.hints[hintIdx]) ? lvl.hints[hintIdx] : '';
+          }
+        },
+
+        // ---------- Flow ----------
+        async preloadAll(){
+          const assets = [
+            ...CONFIG.images.map(src => ({type:'img', src})),
+            ...CONFIG.sounds.map(src => ({type:'audio', src}))
+          ];
+
+          const total = assets.length;
+          let loaded = 0;
+          let doneFlag = false;
+
+          const mark = () => {
+            if (doneFlag) return;
+            loaded++;
+            const pct = Math.round((loaded/total)*100);
+            this.el.progressBar.style.width = pct + '%';
+            this.el.progressText.textContent = pct + '%';
+            if (loaded >= total){
+              doneFlag = true;
+              this.el.progressText.textContent = 'Готово!';
+              this.el.startBtn.classList.remove('hidden');
+              this.el.skipPreload.classList.add('hidden');
+            }
+          };
+
+          setTimeout(() => {
+            if (!doneFlag) this.el.skipPreload.classList.remove('hidden');
+          }, 1800);
+
+          const preloadImg = (src) => new Promise(resolve => {
+            const img = new Image();
+            img.onload = () => { mark(); resolve(); };
+            img.onerror = () => { mark(); resolve(); };
+            img.src = src;
+          });
+
+          const preloadAudio = (src) => new Promise(resolve => {
+            const a = new Audio();
+            let finished = false;
+            const finish = () => { if (finished) return; finished = true; mark(); resolve(); };
+            a.preload = 'auto';
+            a.addEventListener('canplaythrough', finish, {once:true});
+            a.addEventListener('loadeddata', finish, {once:true});
+            a.addEventListener('error', finish, {once:true});
+            a.src = src;
+            setTimeout(finish, 2500);
+          });
+
+          await Promise.all(assets.map(a => a.type === 'img' ? preloadImg(a.src) : preloadAudio(a.src)));
+        },
+
+        start({mute=false}={}){
+          this.state.muted = !!mute;
+          this.state.started = true;
+          this.syncAudioUI();
+          this.saveState();
+
+          this.el.loading.classList.add('hidden');
+          setTimeout(() => {
+            this.el.container.classList.add('visible');
+            this.setBackground('1.jpg');
+            this.showScene('intro');
+            this.startSnow();
+          }, 250);
+        },
+
+        goToHub(){
+          this.showScene('hub');
+          this.state.currentLevelId = null;
+          this.stopAllLevelMusic();
+          this.syncHubUI();
           safePlay(this.audio.hub);
-          return;
-        }
+        },
 
-        safePause(this.audio.hub);
-        try{ m.currentTime = 0; }catch(e){}
-        safePlay(m);
-      },
+        goToLevel(n){
+          this.state.currentLevelId = n;
+          this.showScene('level-' + n);
+          this.playLevelMusic(n);
 
-      // -------- Flow --------
-      async preloadAll(){
-        const assets = [...CONFIG.images.map(src => ({type:'img', src})), ...CONFIG.sounds.map(src => ({type:'audio', src}))];
-        const total = assets.length;
-        let loaded = 0;
-        let doneFlag = false;
+          const hintEl = document.getElementById('hint-' + n);
+          if (hintEl) hintEl.classList.add('hidden');
 
-        const mark = () => {
-          if (doneFlag) return;
-          loaded++;
-          const pct = Math.round((loaded/total)*100);
-          this.el.progressBar.style.width = pct + '%';
-          this.el.progressText.textContent = pct + '%';
-          if (loaded >= total){
-            doneFlag = true;
+          const msgEl = document.getElementById('msg-' + n);
+          if (msgEl){ msgEl.textContent = ''; msgEl.style.color = ''; }
+
+          this.syncLevelMeta(n);
+
+          const input = document.getElementById('ans-' + n);
+          if (input) setTimeout(() => input.focus(), 70);
+        },
+
+        backToHub(){
+          const n = this.state.currentLevelId;
+          if (n){
+            const input = document.getElementById('ans-' + n);
+            const msg = document.getElementById('msg-' + n);
+            const hint = document.getElementById('hint-' + n);
+            const backBtn = document.querySelector('#level-' + n + ' .back-btn');
+
+            if (input){ input.value = ''; input.disabled = false; }
+            if (msg){ msg.textContent = ''; msg.style.color = ''; }
+            if (hint){ hint.classList.add('hidden'); }
+            if (backBtn){ backBtn.disabled = false; backBtn.style.opacity = '1'; backBtn.style.pointerEvents = 'auto'; }
+          }
+          this.state.currentLevelId = null;
+          this.goToHub();
+        },
+
+        completeLevel(n){
+          const idx = n - 1;
+          if (!this.state.completed[idx]){
+            this.state.completed[idx] = true;
+            this.saveState();
+            try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
+            safePlay(this.audio.sfxWhoosh);
+            this.toast('Воспоминание сохранено');
+          }
+          this.syncHubUI();
+        },
+
+        checkAnswer(n){
+          const input = document.getElementById('ans-' + n);
+          const msg = document.getElementById('msg-' + n);
+          const backBtn = document.querySelector('#level-' + n + ' .back-btn');
+          if (!input || !msg) return;
+
+          const val = normalizeAnswer(input.value);
+          const idx = n - 1;
+
+          this.state.attempts[idx] = (this.state.attempts[idx] || 0) + 1;
+          this.saveState();
+          this.syncLevelMeta(n);
+
+          const lvl = LEVELS.find(x => x.id === n);
+          const answers = lvl ? lvl.answers : [];
+          const ok = (answers || []).some(a => {
+            const na = normalizeAnswer(a);
+            return na && val.includes(na);
+          });
+
+          if (ok){
+            msg.textContent = '✓ Верно!';
+            msg.style.color = '#4cd137';
+
+            if (backBtn){ backBtn.disabled = true; backBtn.style.opacity = '0.35'; backBtn.style.pointerEvents = 'none'; }
+            input.disabled = true;
+
+            setTimeout(() => {
+              if (backBtn){ backBtn.disabled = false; backBtn.style.opacity = '1'; backBtn.style.pointerEvents = 'auto'; }
+              input.disabled = false;
+              this.completeLevel(n);
+              this.backToHub();
+            }, 900);
+          } else {
+            const attempts = this.state.attempts[idx];
+            const hints = (lvl && lvl.hints) ? lvl.hints : ['Подумай ещё раз'];
+            const hintText = hints[attempts >= 2 ? 1 : 0] || hints[0];
+
+            msg.textContent = '✗ ' + hintText;
+            msg.style.color = '#e84118';
+
+            input.classList.remove('shake');
+            void input.offsetWidth;
+            input.classList.add('shake');
+          }
+        },
+
+        // ---------- Finale name stream ----------
+        updateNameStream(){
+          const nameRaw = this.el.finalName.value || '';
+          const name = nameRaw.trim();
+          if (!this.el.nameStream) return;
+
+          this.el.nameStream.innerHTML = '';
+          if (!name) return;
+
+          const count = 9;
+          for (let i=0;i<count;i++){
+            const el = document.createElement('div');
+            const dir = (Math.random() < 0.8) ? 'rtl' : 'ltr';
+            const dur = 18 + Math.random()*14;
+            const top = 8 + Math.random()*78;
+            const size = 14 + Math.random()*10;
+            const opacity = 0.45 + Math.random()*0.45;
+
+            el.className = 'name-runner ' + dir;
+            el.textContent = name;
+            el.style.top = top + '%';
+            el.style.fontSize = size + 'px';
+            el.style.opacity = String(opacity);
+            el.style.animationDuration = dur + 's';
+            el.style.animationDelay = (-Math.random()*dur) + 's';
+
+            this.el.nameStream.appendChild(el);
+          }
+        },
+
+        playHooray3Times(){
+          const delays = [0, 450, 900];
+          delays.forEach(d => {
+            setTimeout(() => {
+              const s = this.audio.sfxHooray;
+              if (!s) return;
+              const clone = s.cloneNode(true);
+              clone.volume = Math.min(1, this.state.volume + 0.25);
+              clone.muted = this.state.muted;
+              safePlay(clone);
+            }, d);
+          });
+        },
+
+        goToFinale(){
+          this.showScene('finale');
+          this.setBackground('hub_open.jpg');
+          safePlay(this.audio.hub);
+          this.playHooray3Times();
+          this.initPhysics();
+          this.updateNameStream();
+          setTimeout(() => this.el.finalName.focus(), 120);
+        },
+
+        // ---------- Physics (Matter.js) ----------
+        destroyPhysics(){
+          try{
+            const Matter = window.Matter;
+            if (!Matter) return;
+            if (this.physics.render && this.physics.afterRenderHandler){
+              try{ Matter.Events.off(this.physics.render, 'afterRender', this.physics.afterRenderHandler); }catch(e){}
+            }
+            if (this.physics.runner) Matter.Runner.stop(this.physics.runner);
+            if (this.physics.render){
+              Matter.Render.stop(this.physics.render);
+              if (this.physics.render.canvas && this.physics.render.canvas.remove) this.physics.render.canvas.remove();
+            }
+          }catch(e){}
+
+          this.physics = { engine:null, runner:null, render:null, balls:[], afterRenderHandler:null, cup:{x:0,y:0,w:0,h:0} };
+          this.state.physicsReady = false;
+        },
+
+        initPhysics(){
+          if (this.state.physicsReady) return;
+          if (!this.el.cupCanvasWrap) return;
+          if (!window.Matter) return;
+
+          this.el.cupCanvasWrap.innerHTML = '';
+
+          const {Engine, Render, Runner, Bodies, Composite, Events} = window.Matter;
+
+          const w = Math.max(280, this.el.cupCanvasWrap.clientWidth);
+          const h = Math.max(180, this.el.cupCanvasWrap.clientHeight);
+
+          const engine = Engine.create();
+          engine.gravity.y = 1.05;
+
+          const render = Render.create({
+            element: this.el.cupCanvasWrap,
+            engine,
+            options: {
+              width: w,
+              height: h,
+              wireframes: false,
+              background: 'transparent',
+              pixelRatio: Math.min(2, window.devicePixelRatio || 1)
+            }
+          });
+
+          const thickness = 30;
+          const ground = Bodies.rectangle(w/2, h + thickness/2, w + 200, thickness, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.06)'} });
+          const leftWall = Bodies.rectangle(-thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
+          const rightWall = Bodies.rectangle(w+thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
+
+          const cupW = Math.min(160, w * 0.30);
+          const cupH = Math.min(150, h * 0.55);
+          const cupX = w/2;
+          const cupY = h - 22;
+          const wallT = 18;
+
+          this.physics.cup = { x: cupX, y: cupY, w: cupW, h: cupH };
+
+          const cupBottom = Bodies.rectangle(cupX, cupY, cupW, wallT, {
+            isStatic:true,
+            chamfer: { radius: 8 },
+            render:{ fillStyle:'rgba(255,215,0,0.28)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+          });
+
+          const cupLeft = Bodies.rectangle(cupX - cupW/2 + wallT/2, cupY - cupH/2, wallT, cupH, {
+            isStatic:true,
+            chamfer: { radius: 10 },
+            render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+          });
+
+          const cupRight = Bodies.rectangle(cupX + cupW/2 - wallT/2, cupY - cupH/2, wallT, cupH, {
+            isStatic:true,
+            chamfer: { radius: 10 },
+            render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+          });
+
+          const platform = Bodies.rectangle(cupX, cupY - 1, Math.max(30, cupW - wallT*2), 6, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.03)'} });
+
+          Composite.add(engine.world, [ground, leftWall, rightWall, cupBottom, cupLeft, cupRight, platform]);
+
+          const runner = Runner.create();
+          Render.run(render);
+          Runner.run(runner, engine);
+
+          const afterRender = () => {
+            const ctx = render.context;
+            ctx.save();
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            for (const ball of this.physics.balls){
+              const t = ball && ball._text ? ball._text : '';
+              if (!t) continue;
+
+              const pos = ball.position;
+              const r = ball.circleRadius || 16;
+              const fontBase = Math.max(9, Math.min(14, r * 0.78));
+
+              ctx.save();
+              ctx.translate(pos.x, pos.y);
+              ctx.rotate(ball.angle || 0);
+              ctx.font = `800 ${fontBase}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+
+              const maxW = r * 1.55;
+              const wTxt = ctx.measureText(t).width;
+              const scale = wTxt > maxW ? (maxW / wTxt) : 1;
+              ctx.scale(scale, 1);
+
+              ctx.fillStyle = ball._textColor || '#101010';
+              ctx.shadowColor = 'rgba(0,0,0,.35)';
+              ctx.shadowBlur = 6;
+              ctx.fillText(t, 0, 0);
+
+              ctx.restore();
+            }
+            ctx.restore();
+          };
+
+          Events.on(render, 'afterRender', afterRender);
+
+          this.physics.engine = engine;
+          this.physics.render = render;
+          this.physics.runner = runner;
+          this.physics.afterRenderHandler = afterRender;
+          this.state.physicsReady = true;
+
+          if (!this._orientationBound){
+            this._orientationBound = true;
+            window.addEventListener('orientationchange', () => {
+              if (!this.state.physicsReady) return;
+              setTimeout(() => {
+                this.destroyPhysics();
+                this.initPhysics();
+              }, 220);
+            }, {passive:true});
+          }
+        },
+
+        dropBallWithName(name){
+          if (!this.state.physicsReady || !this.physics.engine) return;
+          if (!window.Matter) return;
+
+          const {Bodies, Composite} = window.Matter;
+          const w = this.physics.render.options.width;
+          const h = this.physics.render.options.height;
+
+          const r = 18;
+          const color = randBallColor();
+          const txt = truncateForBall(name);
+
+          const cupX = this.physics.cup && this.physics.cup.x ? this.physics.cup.x : (w/2);
+          const x = cupX + (Math.random()*28 - 14);
+          const y = 10;
+
+          const ball = Bodies.circle(x, y, r, {
+            restitution: 0.35,
+            friction: 0.02,
+            frictionAir: 0.002,
+            density: 0.0022,
+            render: {
+              fillStyle: color,
+              strokeStyle: 'rgba(0,0,0,.55)',
+              lineWidth: 2
+            }
+          });
+
+          ball._text = txt;
+          ball._textColor = textColorForHsl(color);
+
+          Composite.add(this.physics.engine.world, ball);
+          this.physics.balls.push(ball);
+
+          const killY = h + 260;
+          const killXPad = 260;
+          const alive = [];
+          for (const b of this.physics.balls){
+            if (!b || !b.position) continue;
+            const out = (b.position.y > killY) || (b.position.x < -killXPad) || (b.position.x > w + killXPad);
+            if (out){
+              try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
+            } else alive.push(b);
+          }
+          this.physics.balls = alive;
+
+          if (this.physics.balls.length > 600){
+            const extra = this.physics.balls.length - 600;
+            for (let i=0;i<extra;i++){
+              const b = this.physics.balls[i];
+              try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
+            }
+            this.physics.balls = this.physics.balls.slice(extra);
+          }
+
+          try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
+          safePlay(this.audio.sfxWhoosh);
+        },
+
+        // ---------- Snow ----------
+        startSnow(){
+          if (CONFIG.reducedMotion) return;
+          if (this.state.snowTimer) return;
+
+          this.state.snowTimer = setInterval(() => {
+            if (!this.el.container.classList.contains('visible')) return;
+            const snow = document.createElement('div');
+            snow.textContent = '❄';
+            snow.className = 'snowflake';
+            snow.style.left = (Math.random() * 100) + '%';
+            snow.style.opacity = String(Math.random() * 0.9 + 0.1);
+            snow.style.fontSize = (Math.random() * 18 + 10) + 'px';
+            snow.style.color = 'rgba(255,255,255,.95)';
+            snow.style.animationDuration = (Math.random() * 3 + 2.2) + 's';
+            this.el.container.appendChild(snow);
+            setTimeout(() => snow.remove(), 6000);
+          }, 260);
+        },
+
+        // ---------- Events ----------
+        bindEvents(){
+          // Loading controls
+          this.el.startBtn.addEventListener('click', () => this.start({mute:false}));
+          this.el.muteOnStartBtn.addEventListener('click', () => this.start({mute:true}));
+          this.el.skipPreload.addEventListener('click', () => {
             this.el.progressText.textContent = 'Готово!';
             this.el.startBtn.classList.remove('hidden');
             this.el.skipPreload.classList.add('hidden');
-          }
-        };
-
-        // Show skip only if still not ready after delay
-        setTimeout(()=> {
-          if (!doneFlag) this.el.skipPreload.classList.remove('hidden');
-        }, 1800);
-
-        const preloadImg = (src) => new Promise(resolve => {
-          const img = new Image();
-          img.onload = () => { mark(); resolve(); };
-          img.onerror = () => { mark(); resolve(); };
-          img.src = src;
-        });
-
-        const preloadAudio = (src) => new Promise(resolve => {
-          const a = new Audio();
-          let finished = false;
-          const finish = () => { if (finished) return; finished = true; mark(); resolve(); };
-          a.preload = 'auto';
-          a.addEventListener('canplaythrough', finish, {once:true});
-          a.addEventListener('loadeddata', finish, {once:true});
-          a.addEventListener('error', finish, {once:true});
-          a.src = src;
-          setTimeout(finish, 2500);
-        });
-
-        await Promise.all(assets.map(a => a.type === 'img' ? preloadImg(a.src) : preloadAudio(a.src)));
-      },
-
-      start({mute=false}={}){
-        this.state.muted = !!mute;
-        this.state.started = true;
-        this.syncAudioUI();
-        this.saveState();
-
-        this.el.loading.classList.add('hidden');
-        setTimeout(() => {
-          this.el.container.classList.add('visible');
-          this.setBackground('1.jpg');
-          this.showScene('intro');
-          this.startSnow();
-        }, 250);
-      },
-
-      goToHub(){
-        this.showScene('hub');
-        this.stopAllLevelMusic();
-        this.syncHubUI();
-        safePlay(this.audio.hub);
-      },
-
-      goToLevel(n){
-        this.state.currentLevel = n;
-        this.showScene('level-' + n);
-        this.playLevelMusic(n);
-
-        const hintEl = document.getElementById('hint-' + n);
-        if (hintEl) hintEl.classList.add('hidden');
-        this.syncLevelMeta(n);
-
-        const input = document.getElementById('ans-' + n);
-        if (input) setTimeout(()=> input.focus(), 70);
-      },
-
-      backToHub(){
-        const n = this.state.currentLevel;
-        if (n){
-          const input = document.getElementById('ans-' + n);
-          const msg = document.getElementById('msg-' + n);
-          const hint = document.getElementById('hint-' + n);
-          if (input){ input.value = ''; input.disabled = false; }
-          if (msg){ msg.textContent = ''; msg.style.color = ''; }
-          if (hint){ hint.classList.add('hidden'); }
-        }
-        this.state.currentLevel = null;
-        this.goToHub();
-      },
-
-      completeLevel(n){
-        if (!this.state.completed[n-1]){
-          this.state.completed[n-1] = true;
-          this.saveState();
-          try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
-          safePlay(this.audio.sfxWhoosh);
-          this.toast('Воспоминание сохранено');
-        }
-        this.syncHubUI();
-      },
-
-      checkAnswer(n){
-        const input = document.getElementById('ans-' + n);
-        const msg = document.getElementById('msg-' + n);
-        const backBtn = document.querySelector('#level-' + n + ' .back-btn');
-        if (!input || !msg) return;
-
-        const val = normalizeAnswer(input.value);
-        this.state.attempts[n-1] = (this.state.attempts[n-1] || 0) + 1;
-        this.saveState();
-        this.syncLevelMeta(n);
-
-        const answers = (LEVELS[n] && Array.isArray(LEVELS[n].answers)) ? LEVELS[n].answers : [];
-        const ok = answers.some(a => {
-          const na = normalizeAnswer(a);
-          return na && val.includes(na);
-        });
-
-        if (ok){
-          msg.textContent = '✓ Верно!';
-          msg.style.color = '#4cd137';
-
-          if (backBtn){ backBtn.disabled = true; backBtn.style.opacity = '0.35'; backBtn.style.pointerEvents = 'none'; }
-          input.disabled = true;
-
-          setTimeout(() => {
-            if (backBtn){ backBtn.disabled = false; backBtn.style.opacity = '1'; backBtn.style.pointerEvents = 'auto'; }
-            input.disabled = false;
-            this.completeLevel(n);
-            this.backToHub();
-          }, 900);
-        } else {
-          const attempts = this.state.attempts[n-1];
-          const hints = (LEVELS[n] && LEVELS[n].hints) ? LEVELS[n].hints : ['Подумай ещё раз'];
-          const hintText = hints[attempts >= 2 ? 1 : 0] || hints[0];
-
-          msg.textContent = '✗ ' + hintText;
-          msg.style.color = '#e84118';
-          input.classList.remove('shake');
-          void input.offsetWidth;
-          input.classList.add('shake');
-        }
-      },
-
-      // -------- Finale name stream --------
-      updateNameStream(){
-        const nameRaw = this.el.finalName.value || '';
-        const name = nameRaw.trim();
-        if (!this.el.nameStream) return;
-        this.el.nameStream.innerHTML = '';
-        if (!name) return;
-
-        const count = 9;
-        for (let i=0;i<count;i++){
-          const el = document.createElement('div');
-          const dir = (Math.random() < 0.8) ? 'rtl' : 'ltr';
-          const dur = 18 + Math.random()*14; // slower
-          const top = 8 + Math.random()*78;  // random Y
-          const size = 14 + Math.random()*10;
-          const opacity = 0.45 + Math.random()*0.45;
-
-          el.className = 'name-runner ' + dir;
-          el.textContent = name;
-          el.style.top = top + '%';
-          el.style.fontSize = size + 'px';
-          el.style.opacity = String(opacity);
-          el.style.animationDuration = dur + 's';
-          el.style.animationDelay = (-Math.random()*dur) + 's';
-
-          this.el.nameStream.appendChild(el);
-        }
-      },
-
-      goToFinale(){
-        this.showScene('finale');
-        this.setBackground('hub_open.jpg');
-        safePlay(this.audio.hub);
-        this.playHooray3Times();
-        this.initPhysics();
-        this.updateNameStream();
-        setTimeout(()=> this.el.finalName.focus(), 120);
-      },
-
-      playHooray3Times(){
-        const delays = [0, 450, 900];
-        delays.forEach(d => {
-          setTimeout(() => {
-            const s = this.audio.sfxHooray;
-            if (!s) return;
-            const clone = s.cloneNode(true);
-            clone.volume = Math.min(1, this.state.volume + 0.25);
-            clone.muted = this.state.muted;
-            safePlay(clone);
-          }, d);
-        });
-      },
-
-      // -------- Physics (Matter.js) --------
-      destroyPhysics(){
-        try{
-          const Matter = window.Matter;
-          if (!Matter) return;
-          if (this.physics.render && this.physics.afterRenderHandler){
-            try{ Matter.Events.off(this.physics.render, 'afterRender', this.physics.afterRenderHandler); }catch(e){}
-          }
-          if (this.physics.runner){ Matter.Runner.stop(this.physics.runner); }
-          if (this.physics.render){
-            Matter.Render.stop(this.physics.render);
-            if (this.physics.render.canvas && this.physics.render.canvas.remove) this.physics.render.canvas.remove();
-          }
-        }catch(e){}
-        this.physics = { engine:null, runner:null, render:null, balls:[], afterRenderHandler:null, cup:{x:0,y:0,w:0,h:0} };
-        this.state.physicsReady = false;
-      },
-
-      initPhysics(){
-        if (this.state.physicsReady) return;
-        if (!this.el.cupCanvasWrap) return;
-        if (!window.Matter) return;
-
-        // Clear any previous
-        this.el.cupCanvasWrap.innerHTML = '';
-
-        const {Engine, Render, Runner, Bodies, Composite, Events} = window.Matter;
-
-        const w = Math.max(280, this.el.cupCanvasWrap.clientWidth);
-        const h = Math.max(180, this.el.cupCanvasWrap.clientHeight);
-
-        const engine = Engine.create();
-        engine.gravity.y = 1.05;
-
-        const render = Render.create({
-          element: this.el.cupCanvasWrap,
-          engine,
-          options: {
-            width: w,
-            height: h,
-            wireframes: false,
-            background: 'transparent',
-            pixelRatio: Math.min(2, window.devicePixelRatio || 1)
-          }
-        });
-
-        // World bounds
-        const thickness = 30;
-        const ground = Bodies.rectangle(w/2, h + thickness/2, w + 200, thickness, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.06)'} });
-        const leftWall = Bodies.rectangle(-thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
-        const rightWall = Bodies.rectangle(w+thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
-
-        // Cup (a "U" shape) — narrower (~2x)
-        const cupW = Math.min(160, w * 0.30);
-        const cupH = Math.min(150, h * 0.55);
-        const cupX = w/2;
-        const cupY = h - 22;
-        const wallT = 18;
-
-        this.physics.cup = { x: cupX, y: cupY, w: cupW, h: cupH };
-
-        const cupBottom = Bodies.rectangle(cupX, cupY, cupW, wallT, {
-          isStatic:true,
-          chamfer: { radius: 8 },
-          render:{ fillStyle:'rgba(255,215,0,0.28)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
-        });
-
-        const cupLeft = Bodies.rectangle(cupX - cupW/2 + wallT/2, cupY - cupH/2, wallT, cupH, {
-          isStatic:true,
-          chamfer: { radius: 10 },
-          render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
-        });
-
-        const cupRight = Bodies.rectangle(cupX + cupW/2 - wallT/2, cupY - cupH/2, wallT, cupH, {
-          isStatic:true,
-          chamfer: { radius: 10 },
-          render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
-        });
-
-        const platform = Bodies.rectangle(cupX, cupY - 1, Math.max(30, cupW - wallT*2), 6, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.03)'} });
-
-        Composite.add(engine.world, [ground, leftWall, rightWall, cupBottom, cupLeft, cupRight, platform]);
-
-        const runner = Runner.create();
-        Render.run(render);
-        Runner.run(runner, engine);
-
-        // Draw text on balls
-        const afterRender = () => {
-          const ctx = render.context;
-          ctx.save();
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-
-          for (const ball of this.physics.balls){
-            const t = ball && ball._text ? ball._text : '';
-            if (!t) continue;
-
-            const pos = ball.position;
-            const r = ball.circleRadius || 16;
-            const fontBase = Math.max(9, Math.min(14, r * 0.78));
-
-            ctx.save();
-            ctx.translate(pos.x, pos.y);
-            ctx.rotate(ball.angle || 0);
-
-            ctx.font = `800 ${fontBase}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
-
-            // If too wide, scale down
-            const maxW = r * 1.55;
-            const wTxt = ctx.measureText(t).width;
-            const scale = wTxt > maxW ? (maxW / wTxt) : 1;
-            ctx.scale(scale, 1);
-
-            // Text styling
-            ctx.fillStyle = ball._textColor || '#101010';
-            ctx.shadowColor = 'rgba(0,0,0,.35)';
-            ctx.shadowBlur = 6;
-            ctx.fillText(t, 0, 0);
-
-            ctx.restore();
-          }
-          ctx.restore();
-        };
-
-        Events.on(render, 'afterRender', afterRender);
-
-        this.physics.engine = engine;
-        this.physics.render = render;
-        this.physics.runner = runner;
-        this.physics.afterRenderHandler = afterRender;
-        this.state.physicsReady = true;
-
-        // Keep cup responsive.
-        // NOTE: On mobile, `resize` can fire often (URL bar, keyboard) and may cause visible jumps.
-        // So we only re-init physics on orientation change (handled elsewhere).
-        if (!this._physicsResizeBound){
-          this._physicsResizeBound = () => {};
-          window.addEventListener('orientationchange', () => {
-            if (!this.state.physicsReady) return;
-            setTimeout(() => {
-              this.destroyPhysics();
-              this.initPhysics();
-            }, 220);
-          }, {passive:true});
-        }
-      },
-
-      dropBallWithName(name){
-        if (!this.state.physicsReady || !this.physics.engine) return;
-        if (!window.Matter) return;
-
-        const {Bodies, Composite} = window.Matter;
-        const w = this.physics.render.options.width;
-        const h = this.physics.render.options.height;
-
-        const r = 18;
-        const color = randBallColor();
-        const txt = truncateForBall(name);
-
-        // Drop roughly above cup
-        const cupX = this.physics.cup && this.physics.cup.x ? this.physics.cup.x : (w/2);
-        const x = cupX + (Math.random()*28 - 14);
-        const y = 10;
-
-        const ball = Bodies.circle(x, y, r, {
-          restitution: 0.35,
-          friction: 0.02,
-          frictionAir: 0.002,
-          density: 0.0022,
-          render: {
-            fillStyle: color,
-            strokeStyle: 'rgba(0,0,0,.55)',
-            lineWidth: 2
-          }
-        });
-
-        ball._text = txt;
-        ball._textColor = textColorForHsl(color);
-
-        Composite.add(this.physics.engine.world, ball);
-        this.physics.balls.push(ball);
-
-        // Cleanup ONLY when balls really fall out below the visible simulation area.
-        // (Do not cap by count — user wants the cup to be able to overflow naturally.)
-        const killY = h + 260;
-        const killXPad = 260;
-        const alive = [];
-        for (const b of this.physics.balls){
-          if (!b || !b.position) continue;
-          const out = (b.position.y > killY) || (b.position.x < -killXPad) || (b.position.x > w + killXPad);
-          if (out){
-            try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
-          } else {
-            alive.push(b);
-          }
-        }
-        this.physics.balls = alive;
-
-        // Emergency safety cap (should almost never trigger; keep high so cup can overflow visually)
-        if (this.physics.balls.length > 600){
-          const extra = this.physics.balls.length - 600;
-          for (let i=0;i<extra;i++){
-            const b = this.physics.balls[i];
-            try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
-          }
-          this.physics.balls = this.physics.balls.slice(extra);
-        }
-
-        // tiny whoosh
-        try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
-        safePlay(this.audio.sfxWhoosh);
-      },
-
-      // -------- Snow --------
-      startSnow(){
-        if (CONFIG.reducedMotion) return;
-        if (this.state.snowTimer) return;
-
-        this.state.snowTimer = setInterval(() => {
-          if (!this.el.container.classList.contains('visible')) return;
-          const snow = document.createElement('div');
-          snow.textContent = '❄';
-          snow.className = 'snowflake';
-          snow.style.left = (Math.random() * 100) + '%';
-          snow.style.opacity = String(Math.random() * 0.9 + 0.1);
-          snow.style.fontSize = (Math.random() * 18 + 10) + 'px';
-          snow.style.color = 'rgba(255,255,255,.95)';
-          snow.style.animationDuration = (Math.random() * 3 + 2.2) + 's';
-          this.el.container.appendChild(snow);
-          setTimeout(() => snow.remove(), 6000);
-        }, 260);
-      },
-
-      // -------- Events --------
-      bindEvents(){
-        // Loading controls
-        this.el.startBtn.addEventListener('click', () => this.start({mute:false}));
-        this.el.muteOnStartBtn.addEventListener('click', () => this.start({mute:true}));
-        this.el.skipPreload.addEventListener('click', () => {
-          this.el.progressText.textContent = 'Готово!';
-          this.el.startBtn.classList.remove('hidden');
-          this.el.skipPreload.classList.add('hidden');
-          this.toast('Предзагрузка пропущена');
-        });
-
-        // Intro
-        this.el.btnOpen.addEventListener('click', () => this.goToHub());
-
-        // Stars
-        document.querySelectorAll('.star').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const n = Number(btn.dataset.level);
-            if (!n) return;
-            this.goToLevel(n);
-          });
-        });
-
-        // Back buttons
-        document.querySelectorAll('.back-btn').forEach(btn => {
-          btn.addEventListener('click', () => this.backToHub());
-        });
-
-        // Answer buttons
-        document.querySelectorAll('.answer-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const n = Number(btn.dataset.level);
-            if (!n) return;
-            this.checkAnswer(n);
-          });
-        });
-
-        // Hint buttons
-        document.querySelectorAll('.hint-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const n = Number(btn.dataset.level);
-            const hintEl = document.getElementById('hint-' + n);
-            if (!hintEl) return;
-            this.syncLevelMeta(n);
-            hintEl.classList.toggle('hidden');
-          });
-        });
-
-        // Input: Enter submit, Esc back + mobile keyboard comfort
-        document.querySelectorAll('.answer-input').forEach(inp => {
-          inp.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter'){
-              const id = inp.id || '';
-              const m = id.match(/ans-(\d+)/);
-              if (m){ this.checkAnswer(Number(m[1])); }
-            }
-            if (e.key === 'Escape') this.backToHub();
+            this.toast('Предзагрузка пропущена');
           });
 
-          inp.addEventListener('focus', () => {
-            __inputFocused = true;
-            // Lock keyboard height once (do NOT scrollIntoView here — it causes viewport jumps on mobile)
-            lockKeyboardHeightOnce();
+          // Intro
+          this.el.btnOpen.addEventListener('click', () => this.goToHub());
+
+          // Hub actions
+          this.el.finalBtn.addEventListener('click', () => this.goToFinale());
+          this.el.backToHub.addEventListener('click', () => this.goToHub());
+
+          this.el.resetBtn.addEventListener('click', () => {
+            if (confirm('Сбросить прогресс?')) this.resetProgress();
           });
-          inp.addEventListener('blur', () => {
-            __inputFocused = false;
-            resetKeyboardPadding();
-          });
-        });
 
-        // Keyboard global
-        window.addEventListener('keydown', (e) => {
-          if (!this.state.started) return;
-          if (e.key === 'Escape'){
-            const active = this.activeScene();
-            if (!active) return;
-            if (active.id && active.id.startsWith('level-')) this.backToHub();
-            if (active.id === 'finale') this.goToHub();
-          }
-        });
-
-        // Final button
-        this.el.finalBtn.addEventListener('click', () => this.goToFinale());
-        this.el.backToHub.addEventListener('click', () => this.goToHub());
-
-        // Reset progress
-        this.el.resetBtn.addEventListener('click', () => {
-          if (confirm('Сбросить прогресс?')) this.resetProgress();
-        });
-
-        // Mute & volume
-        this.el.btnMute.addEventListener('click', () => {
-          this.state.muted = !this.state.muted;
-          this.syncAudioUI();
-          this.saveState();
-          this.toast(this.state.muted ? 'Звук выключен' : 'Звук включён');
-        });
-
-        if (this.el.volume){
-          this.el.volume.addEventListener('input', () => {
-            this.state.volume = Number(this.el.volume.value);
+          // Mute & volume
+          this.el.btnMute.addEventListener('click', () => {
+            this.state.muted = !this.state.muted;
             this.syncAudioUI();
             this.saveState();
+            this.toast(this.state.muted ? 'Звук выключен' : 'Звук включён');
           });
-        }
 
-        // Finale name -> stream
-        this.el.finalName.addEventListener('input', () => {
-          this.updateNameStream();
-          this.saveState({name: this.el.finalName.value});
-        });
-
-        this.el.finalSave.addEventListener('click', () => {
-          const name = (this.el.finalName.value || '').trim();
-          if (!name){
-            this.el.finalNote.textContent = 'Напиши имя 🙂';
-            this.el.finalNote.style.color = '#ffd700';
-            this.el.finalName.focus();
-            return;
+          if (this.el.volume){
+            this.el.volume.addEventListener('input', () => {
+              this.state.volume = Number(this.el.volume.value);
+              this.syncAudioUI();
+              this.saveState();
+            });
           }
-          this.saveState({name});
-          this.el.finalNote.textContent = `Записано: ${name}`;
-          this.el.finalNote.style.color = '#4cd137';
-          this.playHooray3Times();
+
+          // Levels: delegate clicks within container
+          this.el.container.addEventListener('click', (e) => {
+            const btn = e.target && e.target.closest ? e.target.closest('button') : null;
+            if (!btn) return;
+
+            const action = btn.dataset.action;
+            if (!action) return;
+
+            if (action === 'go-level'){
+              const n = Number(btn.dataset.level);
+              if (n) this.goToLevel(n);
+            }
+
+            if (action === 'back') this.backToHub();
+
+            if (action === 'answer'){
+              const n = Number(btn.dataset.level);
+              if (n) this.checkAnswer(n);
+            }
+
+            if (action === 'toggle-hint'){
+              const n = Number(btn.dataset.level);
+              const hintEl = document.getElementById('hint-' + n);
+              if (!hintEl) return;
+              this.syncLevelMeta(n);
+              hintEl.classList.toggle('hidden');
+            }
+          });
+
+          // Input: Enter submit, Esc back + mobile keyboard padding lock
+          this.el.container.addEventListener('keydown', (e) => {
+            const t = e.target;
+            if (!(t instanceof HTMLElement)) return;
+
+            if (t.matches && t.matches('.answer-input')){
+              if (e.key === 'Enter'){
+                const lvl = Number(t.dataset.level);
+                if (lvl) this.checkAnswer(lvl);
+              }
+              if (e.key === 'Escape') this.backToHub();
+            }
+          });
+
+          // Keyboard global
+          window.addEventListener('keydown', (e) => {
+            if (!this.state.started) return;
+            if (e.key !== 'Escape') return;
+
+            const active = this.activeScene();
+            if (!active) return;
+
+            if (active.id && active.id.startsWith('level-')) this.backToHub();
+            if (active.id === 'finale') this.goToHub();
+          });
+
+          // Focus handling (keyboard)
+          this.el.container.addEventListener('focusin', (e) => {
+            const t = e.target;
+            if (!(t instanceof HTMLElement)) return;
+            if (t.matches && t.matches('.answer-input')){
+              __inputFocused = true;
+              lockKeyboardHeightOnce();
+            }
+          });
+
+          this.el.container.addEventListener('focusout', (e) => {
+            const t = e.target;
+            if (!(t instanceof HTMLElement)) return;
+            if (t.matches && t.matches('.answer-input')){
+              __inputFocused = false;
+              resetKeyboardPadding();
+            }
+          });
+
+          // Finale name
+          this.el.finalName.addEventListener('input', () => {
+            this.updateNameStream();
+            this.saveState({name: this.el.finalName.value});
+          });
+
+          this.el.finalSave.addEventListener('click', () => {
+            const name = (this.el.finalName.value || '').trim();
+            if (!name){
+              this.el.finalNote.textContent = 'Напиши имя 🙂';
+              this.el.finalNote.style.color = '#ffd700';
+              this.el.finalName.focus();
+              return;
+            }
+            this.saveState({name});
+            this.el.finalNote.textContent = `Записано: ${name}`;
+            this.el.finalNote.style.color = '#4cd137';
+            this.playHooray3Times();
+            this.updateNameStream();
+            this.initPhysics();
+            this.dropBallWithName(name);
+          });
+
+          this.el.finalName.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') this.el.finalSave.click();
+            if (e.key === 'Escape') this.goToHub();
+          });
+
+          // Orientation change: allow re-freeze
+          window.addEventListener('orientationchange', () => {
+            __frozen = false;
+            setTimeout(() => {
+              freezeHeights();
+              setViewportVars();
+            }, 160);
+          }, {passive:true});
+        },
+
+        // ---------- Init ----------
+        cacheEls(){
+          this.el = {
+            container: $('#game-container'),
+            loading: $('#loading-screen'),
+            progressBar: $('#progress-bar'),
+            progressText: $('#progress-text'),
+            startBtn: $('#start-button'),
+            muteOnStartBtn: $('#mute-on-start'),
+            skipPreload: $('#skip-preload'),
+            toast: $('#toast'),
+            toastInner: $('#toast > div'),
+
+            btnOpen: $('#btn-open'),
+            finalBtn: $('#final-btn'),
+            resetBtn: $('#reset-btn'),
+            btnMute: $('#btn-mute'),
+            muteIcon: $('#mute-icon'),
+            volume: $('#volume'),
+
+            miniProgressText: $('#mini-progress-text'),
+            miniProgressBar: $('#mini-progress-bar'),
+            hubProgressText: $('#hub-progress-text'),
+            hubProgressBar: $('#hub-progress-bar'),
+
+            finalName: $('#final-name'),
+            finalSave: $('#final-save'),
+            finalNote: $('#final-note'),
+            backToHub: $('#back-to-hub'),
+            nameStream: $('#name-stream'),
+            cupCanvasWrap: $('#cup-canvas'),
+
+            starsRow: $('#stars-row'),
+            levelsRoot: $('#levels-root'),
+            bottomBar: $('#bottom-bar'),
+          };
+
+          this.audio = {
+            hub: $('#music-hub'),
+            sfxWhoosh: $('#sfx-whoosh'),
+            sfxHooray: $('#sfx-hooray'),
+            level: {
+              1: $('#music-level1'),
+              2: $('#music-level2'),
+              3: $('#music-level3'),
+              4: $('#music-level4'),
+              5: $('#music-level5'),
+              6: $('#music-level6'),
+              7: $('#music-level7'),
+            }
+          };
+        },
+
+        async init(){
+          freezeHeights();
+          setViewportVars();
+
+          this.cacheEls();
+
+          // Build UI from data (removes repeated HTML)
+          this.renderStars();
+          this.renderLevels();
+
+          this.loadState();
+          this.syncAudioUI();
+
+          // Preload assets
+          await this.preloadAll();
+          this.setBackground('1.jpg');
+
+          this.bindEvents();
+
+          // Reflect stored progress
+          this.syncHubUI();
+
+          // If name already exists
           this.updateNameStream();
-          this.initPhysics();
-          this.dropBallWithName(name);
-        });
+        }
+      };
 
-        this.el.finalName.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') this.el.finalSave.click();
-          if (e.key === 'Escape') this.goToHub();
-        });
-
-        // VisualViewport updates can be very jittery on mobile (address bar/toolbar changes).
-        // We intentionally DO NOT live-update padding on every resize.
-        // Instead, we lock keyboard height once on input focus (see lockKeyboardHeightOnce()).
-
-        window.addEventListener('orientationchange', () => {
-          // On orientation change, allow re-freeze.
-          __frozen = false;
-          setTimeout(() => {
-            freezeHeights();
-            setViewportVars();
-          }, 160);
-        }, {passive:true});
-      },
-
-      // -------- Init --------
-      async init(){
-        // Freeze heights early to stop mobile browser bars from resizing the app.
-        freezeHeights();
-        setViewportVars();
-
-        this.loadState();
-        this.syncAudioUI();
-
-        await this.preloadAll();
-        this.setBackground('1.jpg');
-
-        this.bindEvents();
-
-        // reflect stored progress
-        this.syncHubUI();
-
-        // if name already exists, prepare runners (will be visible in finale)
-        this.updateNameStream();
-      }
-    };
-
-    game.init();
+      app.init();
+    })();
   </script>
 </body>
 </html>
