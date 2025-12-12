@@ -1,686 +1,1446 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Сквозь время</title>
-    <style>
-        /* === БАЗОВЫЕ СТИЛИ === */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        
-        body {
-            background-color: #0a0a0a;
-            color: white;
-            font-family: 'Segoe UI', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="dark" />
+  <title>Сквозь время</title>
 
-        /* === ЭКРАН ЗАГРУЗКИ === */
-        #loading-screen {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 1s;
-        }
-        #loading-screen.hidden { opacity: 0; pointer-events: none; }
-        #loading-screen h1 {
-            color: #ffd700;
-            font-size: 1.8rem;
-            margin-bottom: 30px;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+  <!-- Tailwind CSS (required) -->
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <!-- Matter.js for physics in finale -->
+  <script src="https://cdn.jsdelivr.net/npm/matter-js@0.19.0/build/matter.min.js"></script>
 
-        #progress-container {
-            width: 300px; height: 8px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        #progress-bar {
-            width: 0%; height: 100%;
-            background: linear-gradient(90deg, #ffd700, #ff6b6b);
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
-        #progress-text { color: #aaa; margin-bottom: 30px; }
-        
-        #start-button {
-            padding: 15px 50px;
-            background: linear-gradient(90deg, #ffd700, #ffaa00);
-            color: #000;
-            border: none;
-            border-radius: 50px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 5px 30px rgba(255, 215, 0, 0.4);
-            display: none;
-            transition: 0.3s;
-        }
-        #start-button:hover { transform: scale(1.1); }
-
-        /* Подпись на экране загрузки */
-        .credits {
-            position: absolute;
-            bottom: 30px;
-            color: #666;
-            font-size: 0.9rem;
-            font-style: italic;
-        }
-
-        /* === ИГРОВОЙ КОНТЕЙНЕР === */
-        #game-container {
-            width: 90%;
-            max-width: 900px;
-            height: 85vh;
-            background-color: #1a1a1a;
-            background-size: cover;
-            background-position: center;
-            border: 2px solid #ffd700;
-            box-shadow: 0 0 40px rgba(255, 215, 0, 0.15);
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-            display: none;
-            transition: background-image 0.3s;
-        }
-        #game-container.visible { display: block; animation: fadeIn 1s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* === СЦЕНЫ === */
-        .scene { display: none; width: 100%; height: 100%; position: relative; }
-        .scene.active { display: flex; flex-direction: column; animation: fadeIn 0.5s; }
-
-        /* === ТЕКСТОВЫЙ БЛОК === */
-        .overlay {
-            position: absolute;
-            bottom: 0; width: 100%;
-            background: linear-gradient(to top, black 10%, rgba(0,0,0,0.8) 50%, transparent);
-            padding: 50px 20px 40px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .overlay h2 { color: #ffd700; text-transform: uppercase; letter-spacing: 3px; margin-bottom: 15px; text-shadow: 0 2px 4px black; }
-        .overlay p { font-size: 1.1rem; max-width: 700px; margin-bottom: 20px; line-height: 1.5; text-shadow: 0 2px 4px black; }
-
-        /* === КНОПКИ === */
-        .btn {
-            padding: 12px 40px;
-            background: #ffd700;
-            color: black;
-            border: none;
-            border-radius: 50px;
-            font-size: 1rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-            margin-top: 10px;
-        }
-        .btn:hover { transform: scale(1.05); background: #fff; }
-        .btn-back {
-            position: absolute;
-            top: 20px; left: 20px;
-            padding: 10px 25px;
-            background: rgba(0,0,0,0.5);
-            color: #ffd700;
-            border: 1px solid #ffd700;
-            z-index: 100;
-        }
-        .btn-back:hover { background: #ffd700; color: black; }
-
-        /* === ПОЛЕ ВВОДА === */
-        input {
-            background: rgba(255,255,255,0.1);
-            border: none;
-            border-bottom: 2px solid #ffd700;
-            color: white;
-            font-size: 1.2rem;
-            padding: 10px;
-            text-align: center;
-            outline: none;
-            width: 220px;
-            border-radius: 5px 5px 0 0;
-        }
-        input:focus { background: rgba(255,255,255,0.2); }
-        .message { height: 25px; margin-top: 10px; font-weight: bold; }
-
-        /* === ХАБ === */
-        #hub {
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .hub-content {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            height: 100%;
-            padding: 5%;
-            position: relative;
-        }
-
-        /* Колонки звёзд */
-        .stars-column {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5vh;
-        }
-
-        /* ЗВЁЗДЫ (увеличенные) */
-        .star {
-            font-size: clamp(3rem, 8vw, 5rem);
-            cursor: pointer;
-            transition: all 0.3s;
-            filter: grayscale(100%) brightness(0.4);
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-            user-select: none;
-        }
-        .star:hover { 
-            transform: scale(1.3); 
-            filter: grayscale(50%) brightness(0.7); 
-        }
-        .star.completed {
-            filter: grayscale(0%) brightness(1);
-            text-shadow: 0 0 20px gold, 0 0 40px orange;
-            animation: glow 2s infinite alternate;
-        }
-        @keyframes glow {
-            from { text-shadow: 0 0 15px gold, 0 0 30px orange; }
-            to { text-shadow: 0 0 30px gold, 0 0 60px orange, 0 0 80px yellow; }
-        }
-
-        /* Центр хаба (только кнопка финала) */
-        .hub-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex: 1;
-        }
-
-        /* Подсказка */
-        .hub-hint {
-            position: absolute;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #aaa;
-            font-size: 1rem;
-            animation: blink 2s infinite;
-            text-align: center;
-        }
-        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-
-        /* Кнопка финала */
-        .final-btn {
-            display: none;
-            padding: 15px 40px;
-            font-size: 1.2rem;
-        }
-        .final-btn.visible { 
-            display: block; 
-            animation: fadeIn 1s, glow 2s infinite alternate; 
-        }
-
-        /* === СНЕГ === */
-        .snowflake {
-            position: absolute;
-            top: -20px;
-            color: white;
-            pointer-events: none;
-            animation: fall linear infinite;
-            z-index: 50;
-        }
-        @keyframes fall { to { transform: translateY(90vh); } }
-
-        /* === ФИНАЛ === */
-        #finale {
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-        #finale h1 {
-            color: #ffd700;
-            font-size: clamp(2rem, 6vw, 3.5rem);
-            text-shadow: 0 0 30px gold;
-            margin-bottom: 20px;
-        }
-        #finale p { font-size: clamp(1rem, 3vw, 1.5rem); }
-    </style>
-</head>
-<body>
-
-    <!-- ========== ЭКРАН ЗАГРУЗКИ ========== -->
-    <div id="loading-screen">
-        <h1>✨ Загружаем воспоминания...</h1>
-        <div id="progress-container">
-            <div id="progress-bar"></div>
-        </div>
-        <div id="progress-text">0%</div>
-        <button id="start-button" onclick="game.start()">🚀 Отправиться в путешествие</button>
-        <div class="credits">Сделано семьёй Руслана в 2025 году ❤️</div>
-    </div>
-
-    <!-- ========== АУДИО ========== -->
-    <audio id="music-hub" loop src="music.mp3" preload="auto"></audio>
-    <audio id="music-level1" loop src="level1.mp3" preload="auto"></audio>
-    <audio id="music-level2" loop src="level2.mp3" preload="auto"></audio>
-    <audio id="music-level3" loop src="level3.mp3" preload="auto"></audio>
-    <audio id="music-level4" loop src="level4.mp3" preload="auto"></audio>
-    <audio id="music-level5" loop src="level5.mp3" preload="auto"></audio>
-    <audio id="music-level6" loop src="level6.mp3" preload="auto"></audio>
-    <audio id="sfx-whoosh" src="whoosh.mp3" preload="auto"></audio>
-    <audio id="sfx-hooray" src="hooray.mp3" preload="auto"></audio>
-
-    <!-- ========== ИГРОВОЙ КОНТЕЙНЕР ========== -->
-    <div id="game-container">
-
-        <!-- ИНТРО -->
-        <div id="intro" class="scene active">
-            <div class="overlay">
-                <h2>Буффало. 23:55</h2>
-                <p>В комнате тихо, только мерцает ёлка.<br>Под ней лежит странная тетрадь...</p>
-                <button class="btn" onclick="game.goToHub()">Открыть тетрадь</button>
-            </div>
-        </div>
-
-        <!-- ХАБ -->
-        <div id="hub" class="scene">
-            <div class="hub-content">
-                <!-- Левые звёзды (1-3) -->
-                <div class="stars-column">
-                    <div class="star" data-level="1" onclick="game.goToLevel(1)">⭐</div>
-                    <div class="star" data-level="2" onclick="game.goToLevel(2)">⭐</div>
-                    <div class="star" data-level="3" onclick="game.goToLevel(3)">⭐</div>
-                </div>
-
-                <!-- Центр (только кнопка финала) -->
-                <div class="hub-center">
-                    <button class="btn final-btn" id="final-btn" onclick="game.goToFinale()">📖 Записать своё имя</button>
-                </div>
-
-                <!-- Правые звёзды (4-6) -->
-                <div class="stars-column">
-                    <div class="star" data-level="4" onclick="game.goToLevel(4)">⭐</div>
-                    <div class="star" data-level="5" onclick="game.goToLevel(5)">⭐</div>
-                    <div class="star" data-level="6" onclick="game.goToLevel(6)">⭐</div>
-                </div>
-            </div>
-            <div class="hub-hint">✨ Нажми на звёздочку, чтобы начать воспоминание</div>
-        </div>
-
-        <!-- УРОВЕНЬ 1 -->
-        <div id="level-1" class="scene" data-bg="level1.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №1</h2>
-                <p>Москва, 3 года назад. Что осветило небо над Кремлём?</p>
-                <input type="text" id="ans-1" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-1" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(1, 'салют', 'Подсказка: Бах-бах и красиво!')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- УРОВЕНЬ 2 -->
-        <div id="level-2" class="scene" data-bg="level2.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №2</h2>
-                <p>Крит. Ливень. Где мы спрятались и смеялись?</p>
-                <input type="text" id="ans-2" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-2" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(2, 'таверна', 'Подсказка: Там кормили...')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- УРОВЕНЬ 3 -->
-        <div id="level-3" class="scene" data-bg="level3.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №3</h2>
-                <p>День рождения. Какой необычный предмет был на столе?</p>
-                <input type="text" id="ans-3" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-3" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(3, 'матрёшка', 'Подсказка: Русский сувенир')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- УРОВЕНЬ 4 -->
-        <div id="level-4" class="scene" data-bg="level4.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №4</h2>
-                <p>Зимняя прогулка. По какой реке мы гуляли?</p>
-                <input type="text" id="ans-4" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-4" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(4, 'сходня', 'Подсказка: Река в Подмосковье')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- УРОВЕНЬ 5 -->
-        <div id="level-5" class="scene" data-bg="level5.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №5</h2>
-                <p>Летний вечер. Что мы запускали в небо?</p>
-                <input type="text" id="ans-5" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-5" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(5, 'фонарик', 'Подсказка: Светится и летит...')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- УРОВЕНЬ 6 -->
-        <div id="level-6" class="scene" data-bg="level6.jpg">
-            <button class="btn btn-back" onclick="game.backToHub()">← Назад</button>
-            <div class="overlay">
-                <h2>Воспоминание №6</h2>
-                <p>Самое главное. Что связывает нас навсегда?</p>
-                <input type="text" id="ans-6" placeholder="Твой ответ..." autocomplete="off">
-                <div id="msg-6" class="message"></div>
-                <button class="btn" onclick="game.checkAnswer(6, 'семья', 'Подсказка: Мы — это...')">Ответить</button>
-            </div>
-        </div>
-
-        <!-- ФИНАЛ -->
-        <div id="finale" class="scene">
-            <div class="overlay" style="height: 100%; justify-content: center; background: rgba(0,0,0,0.7);">
-                <h1>🎄 С Новым Годом! 🎄</h1>
-                <p>Скоро увидимся.</p>
-                <p style="margin-top: 30px; font-style: italic; color: #ffd700;">С любовью из России ❤️</p>
-            </div>
-        </div>
-
-    </div>
-
-    <script>
-        // =================================================
-        // ⚙️ НАСТРОЙКИ
-        // =================================================
-        const CONFIG = {
-            images: [
-                '1.jpg', 'hub.jpg', 'hub_open.jpg',
-                'level1.jpg', 'level2.jpg', 'level3.jpg',
-                'level4.jpg', 'level5.jpg', 'level6.jpg'
-            ],
-            sounds: [
-                'music.mp3', 'whoosh.mp3', 'hooray.mp3',
-                'level1.mp3', 'level2.mp3', 'level3.mp3',
-                'level4.mp3', 'level5.mp3', 'level6.mp3'
-            ]
-        };
-
-        // =================================================
-        // 🚀 ДВИЖОК ИГРЫ
-        // =================================================
-        const game = {
-            container: document.getElementById('game-container'),
-            
-            // Аудио
-            musicHub: document.getElementById('music-hub'),
-            whoosh: document.getElementById('sfx-whoosh'),
-            hooray: document.getElementById('sfx-hooray'),
-            levelMusic: {
-                1: document.getElementById('music-level1'),
-                2: document.getElementById('music-level2'),
-                3: document.getElementById('music-level3'),
-                4: document.getElementById('music-level4'),
-                5: document.getElementById('music-level5'),
-                6: document.getElementById('music-level6')
-            },
-            
-            // UI
-            loadingScreen: document.getElementById('loading-screen'),
-            progressBar: document.getElementById('progress-bar'),
-            progressText: document.getElementById('progress-text'),
-            startButton: document.getElementById('start-button'),
-            finalBtn: document.getElementById('final-btn'),
-            stars: document.querySelectorAll('.star'),
-            
-            // Состояние
-            completedLevels: [false, false, false, false, false, false],
-            currentLevel: null,
-            loadedCount: 0,
-            totalAssets: CONFIG.images.length + CONFIG.sounds.length,
-            
-            // Кэш изображений
-            imageCache: {},
-
-            // === ИНИЦИАЛИЗАЦИЯ ===
-            init: function() {
-                this.preloadAll();
-                
-                // Настройка громкости
-                this.musicHub.volume = 0.4;
-                this.whoosh.volume = 1.0;
-                this.hooray.volume = 0.8;
-                Object.values(this.levelMusic).forEach(m => m.volume = 0.4);
-            },
-
-            // === ПРЕДЗАГРУЗКА ===
-            preloadAll: function() {
-                // Картинки
-                CONFIG.images.forEach(src => {
-                    const img = new Image();
-                    img.onload = () => {
-                        this.imageCache[src] = img;
-                        this.assetLoaded();
-                    };
-                    img.onerror = () => this.assetLoaded();
-                    img.src = src;
-                });
-                
-                // Звуки
-                CONFIG.sounds.forEach(src => {
-                    const audio = new Audio();
-                    audio.oncanplaythrough = () => this.assetLoaded();
-                    audio.onerror = () => this.assetLoaded();
-                    audio.src = src;
-                });
-            },
-
-            assetLoaded: function() {
-                this.loadedCount++;
-                const percent = Math.round((this.loadedCount / this.totalAssets) * 100);
-                this.progressBar.style.width = percent + '%';
-                this.progressText.innerText = percent + '%';
-
-                if (this.loadedCount >= this.totalAssets) {
-                    this.progressText.innerText = 'Готово!';
-                    this.startButton.style.display = 'block';
-                }
-            },
-
-            // === УСТАНОВКА ФОНА ===
-            setBackground: function(src) {
-                this.container.style.backgroundImage = `url("${src}")`;
-            },
-
-            // === СТАРТ ИГРЫ ===
-            start: function() {
-                this.loadingScreen.classList.add('hidden');
-                setTimeout(() => {
-                    this.container.classList.add('visible');
-                    this.setBackground('1.jpg');
-                    this.showScene('intro');
-                    this.startSnow();
-                }, 500);
-            },
-
-            // === СЦЕНЫ ===
-            showScene: function(id) {
-                document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
-                document.getElementById(id).classList.add('active');
-            },
-
-            // === ХАБ ===
-            goToHub: function() {
-                const allDone = this.completedLevels.every(c => c);
-                this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
-                
-                this.showScene('hub');
-                
-                // Музыка хаба
-                this.stopAllLevelMusic();
-                this.musicHub.play();
-                
-                // Проверяем финал
-                if (allDone) {
-                    this.finalBtn.classList.add('visible');
-                }
-            },
-
-            // === ПЕРЕХОД НА УРОВЕНЬ ===
-            goToLevel: function(n) {
-                this.currentLevel = n;
-                
-                this.setBackground(`level${n}.jpg`);
-                this.showScene('level-' + n);
-                
-                // Музыка: выключаем хаб, включаем уровень
-                this.musicHub.pause();
-                this.stopAllLevelMusic();
-                this.levelMusic[n].currentTime = 0;
-                this.levelMusic[n].play();
-            },
-
-            // === ВОЗВРАТ В ХАБ ===
-            backToHub: function(completed = false) {
-                
-                // Если уровень пройден — зажигаем звезду и играем звук
-                if (completed && this.currentLevel && !this.completedLevels[this.currentLevel - 1]) {
-                    this.completedLevels[this.currentLevel - 1] = true;
-                    
-                    // Звук "вшууу" только при прохождении!
-                    this.whoosh.currentTime = 0;
-                    this.whoosh.play();
-                    
-                    const star = document.querySelector(`.star[data-level="${this.currentLevel}"]`);
-                    if (star) {
-                        setTimeout(() => star.classList.add('completed'), 300);
-                    }
-                }
-
-                // Очищаем поля ввода
-                if (this.currentLevel) {
-                    const input = document.getElementById('ans-' + this.currentLevel);
-                    const msg = document.getElementById('msg-' + this.currentLevel);
-                    if (input) input.value = '';
-                    if (msg) msg.innerText = '';
-                }
-
-                this.currentLevel = null;
-                this.goToHub();
-            },
-
-            // === ОСТАНОВКА МУЗЫКИ УРОВНЕЙ ===
-            stopAllLevelMusic: function() {
-                Object.values(this.levelMusic).forEach(m => {
-                    m.pause();
-                    m.currentTime = 0;
-                });
-            },
-
-            // === ПРОВЕРКА ОТВЕТА ===
-checkAnswer: function(levelNum, correct, hint) {
-    const input = document.getElementById('ans-' + levelNum);
-    const msg = document.getElementById('msg-' + levelNum);
-    const val = input.value.toLowerCase().trim();
-    
-    // Находим кнопку "Назад" в текущем уровне
-    const backBtn = document.querySelector('#level-' + levelNum + ' .btn-back');
-
-    if (val.includes(correct)) {
-        msg.innerText = "✓ Верно!";
-        msg.style.color = "#4cd137";
-        
-        // Блокируем кнопку "Назад" и поле ввода
-        if (backBtn) {
-            backBtn.disabled = true;
-            backBtn.style.opacity = '0.3';
-            backBtn.style.pointerEvents = 'none';
-        }
-        input.disabled = true;
-        
-        // Переходим в хаб через 1 секунду
-        setTimeout(() => {
-            // Разблокируем обратно (для повторного входа)
-            if (backBtn) {
-                backBtn.disabled = false;
-                backBtn.style.opacity = '1';
-                backBtn.style.pointerEvents = 'auto';
-            }
-            input.disabled = false;
-            
-            this.backToHub(true);
-        }, 1000);
-    } else {
-        msg.innerText = "✗ " + hint;
-        msg.style.color = "#e84118";
-        input.style.transform = "translateX(10px)";
-        setTimeout(() => input.style.transform = "translateX(0)", 100);
+  <style>
+    :root{
+      --gold:#ffd700;
+      --bg:#0a0a0a;
+      --kbd: 0px;   /* estimated on-screen keyboard height */
+      --scene-ms: 650ms;
+      --app-h: 100vh; /* stable app height (JS may override with px) */
+      --game-h: 85vh; /* stable game height (JS may override with px) */
+      --fall-h: 95vh; /* snow fall distance fallback */
     }
-},
+    @supports (height: 1svh){
+      :root{ --app-h: 100svh; --game-h: 85svh; --fall-h: 95svh; }
+    }
 
-            // === ФИНАЛ ===
-            goToFinale: function() {
-                // Тройное "Ура!" с интервалом 0.3 сек
-                this.playHooray3Times();
-                
-                // Музыка хаба продолжает играть
-                this.setBackground('hub_open.jpg');
-                this.showScene('finale');
-            },
+    /* Base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      background:var(--bg);
+      color:#fff;
+      font-family:ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Noto Sans", "Helvetica Neue";
+      overflow:hidden;
+      height: var(--app-h);
+      overscroll-behavior:none;
+      touch-action:manipulation;
+      padding-top: max(14px, env(safe-area-inset-top));
+      padding-bottom: max(14px, env(safe-area-inset-bottom));
+    }
 
-            // === ТРОЙНОЕ УРА ===
-playHooray3Times: function() {
-    const delays = [0, 500, 1000];  // 0, 0.5 сек, 1 сек
-    
-    delays.forEach(delay => {
-        setTimeout(() => {
-            const sound = new Audio('hooray.mp3');
-            sound.volume = 0.8;
-            sound.play();
-        }, delay);
-    });
-},
+    /* Loading */
+    #loading-screen{position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#1a1a2e 0%, #16213e 100%); transition:opacity 800ms ease}
+    #loading-screen.hidden{opacity:0; pointer-events:none}
 
-            // === СНЕГ ===
-            startSnow: function() {
-                setInterval(() => {
-                    const snow = document.createElement('div');
-                    snow.innerText = '❄';
-                    snow.classList.add('snowflake');
-                    snow.style.left = Math.random() * 100 + '%';
-                    snow.style.fontSize = (Math.random() * 20 + 10) + 'px';
-                    snow.style.animationDuration = (Math.random() * 3 + 2) + 's';
-                    snow.style.opacity = Math.random();
-                    this.container.appendChild(snow);
-                    setTimeout(() => snow.remove(), 5000);
-                }, 200);
-            }
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    /* Game container */
+    #game-container{
+      width:min(900px, 92vw);
+      height: var(--game-h);
+      border-radius:16px;
+      overflow:hidden;
+      border:2px solid var(--gold);
+      box-shadow:0 0 42px rgba(255,215,0,.14);
+      background-color:#121212;
+      background-size:cover;
+      background-position:center;
+      display:none;
+      position:relative;
+      isolation:isolate;
+    }
+    #game-container.visible{display:block; animation:fadeIn 700ms ease}
+
+    /* Scenes: keep transitions simple on mobile to avoid viewport/compositor jitter */
+    .scene{
+      position:absolute;
+      inset:0;
+      display:flex;
+      width:100%;
+      height:100%;
+      opacity:0;
+      pointer-events:none;
+      transition: opacity var(--scene-ms) ease;
+    }
+    .scene.active{
+      opacity:1;
+      pointer-events:auto;
+      z-index:10;
+    }
+    .scene.entering{opacity:0;}
+    .scene.leaving{opacity:0; z-index:20; pointer-events:none;}
+
+    /* Overlay text block */
+    .overlay{
+      position:absolute; left:0; right:0; bottom:0;
+      padding:56px 18px 36px;
+      display:flex; flex-direction:column; align-items:center; text-align:center;
+      background:linear-gradient(to top, rgba(0,0,0,.96) 10%, rgba(0,0,0,.78) 55%, rgba(0,0,0,0) 100%);
+
+      /* FIX: prevent "jumping" when hint/message blocks appear/disappear.
+         Keep a stable overlay height and allow scrolling inside. */
+      height: clamp(300px, 60%, 540px);
+      max-height: 84%;
+
+      overflow-x:hidden;
+      overflow-y:auto;
+      scrollbar-gutter: stable both-edges;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling:touch;
+
+      /* Safe area + locked keyboard padding (kbd is fixed once on focus to avoid jitter) */
+      padding-bottom:calc(36px + env(safe-area-inset-bottom) + var(--kbd));
+    }
+    @media (max-width: 640px){
+      .overlay{
+        padding:44px 14px 26px;
+        height: clamp(320px, 72%, 620px);
+        max-height: 88%;
+        padding-bottom:calc(26px + env(safe-area-inset-bottom) + var(--kbd));
+      }
+    }
+
+    /* Stars */
+    .star{
+      font-size:clamp(3rem, 8vw, 5rem);
+      cursor:pointer;
+      user-select:none;
+      transition:transform .25s ease, filter .25s ease;
+      filter:grayscale(100%) brightness(.45);
+      text-shadow:0 0 6px rgba(0,0,0,.85);
+    }
+    .star:hover{transform:scale(1.25); filter:grayscale(50%) brightness(.75)}
+
+    @keyframes glow{
+      from{ text-shadow:0 0 14px gold, 0 0 28px orange; }
+      to{ text-shadow:0 0 30px gold, 0 0 60px orange, 0 0 80px rgba(255,255,0,.75); }
+    }
+    .star.completed{filter:none; animation:glow 2s infinite alternate; }
+
+    /* Snow */
+    .snowflake{
+      position:absolute;
+      top:-20px;
+      pointer-events:none;
+      z-index:30;
+      animation:fall linear infinite;
+      will-change: transform;
+      transform: translateZ(0);
+    }
+    @keyframes fall{to{transform:translateY(var(--fall-h))}}
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      *{animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; scroll-behavior:auto !important}
+      .scene{filter:none !important; transform:none !important;}
+    }
+
+    /* Input focus */
+    .answer-input:focus{outline:none; box-shadow:0 0 0 2px rgba(255,215,0,.35)}
+
+    /* Toast */
+    .toast{position:absolute; left:50%; transform:translateX(-50%); top:14px; z-index:60; opacity:0; pointer-events:none; transition:opacity .25s ease, transform .25s ease;}
+    .toast.show{opacity:1; transform:translateX(-50%) translateY(2px)}
+
+    /* Simple shake */
+    @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(6px)}50%{transform:translateX(-6px)}75%{transform:translateX(4px)}}
+    .shake{animation:shake .25s ease}
+
+    /* Mini progress */
+    .progress-pill{backdrop-filter: blur(8px);}
+
+    /* Name stream (finale) */
+    #name-stream{position:absolute; inset:0; overflow:hidden; z-index:25; pointer-events:none;}
+    .name-runner{
+      position:absolute;
+      left:0;
+      white-space:nowrap;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,215,0,.92);
+      text-shadow:0 0 18px rgba(255,215,0,.35);
+      opacity:.85;
+      filter: drop-shadow(0 6px 14px rgba(0,0,0,.55));
+      will-change: transform;
+    }
+    .name-runner.rtl{animation:stream-rtl linear infinite;}
+    .name-runner.ltr{animation:stream-ltr linear infinite;}
+    @keyframes stream-rtl{from{transform:translateX(110vw)}to{transform:translateX(-220vw)}}
+    @keyframes stream-ltr{from{transform:translateX(-220vw)}to{transform:translateX(110vw)}}
+
+    /* Physics cup */
+    #cup-canvas canvas{display:block; width:100% !important; height:100% !important;}
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center">
+
+  <!-- ========== LOADING ========== -->
+  <div id="loading-screen" aria-live="polite">
+    <div class="w-[min(520px,92vw)] px-6">
+      <h1 class="text-[var(--gold)] text-2xl sm:text-3xl font-bold text-center mb-7" style="text-shadow:0 0 20px rgba(255,215,0,.5); animation:pulse 2s infinite">✨ Загружаем воспоминания...</h1>
+
+      <div class="bg-white/10 rounded-full overflow-hidden h-2">
+        <div id="progress-bar" class="h-2 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
+      </div>
+
+      <div class="flex items-center justify-between mt-3">
+        <div id="progress-text" class="text-white/70">0%</div>
+        <button id="skip-preload" class="text-white/70 hover:text-white underline underline-offset-4 hidden" type="button">Пропустить</button>
+      </div>
+
+      <div class="mt-7 flex items-center justify-center gap-3 flex-wrap">
+        <button id="start-button" class="hidden px-7 py-3 rounded-full font-extrabold bg-[linear-gradient(90deg,#ffd700,#ffaa00)] text-black shadow-[0_10px_40px_rgba(255,215,0,.25)] hover:scale-[1.03] transition" type="button">🚀 Отправиться в путешествие</button>
+        <button id="mute-on-start" class="px-6 py-3 rounded-full font-bold border border-white/15 bg-black/20 hover:bg-black/35 transition" type="button" title="Если не хотите музыку">Начать без звука</button>
+      </div>
+
+      <div class="mt-8 text-center text-white/40 italic">Сделано семьёй Руслана в 2025 году ❤️</div>
+      <div class="mt-6 text-center text-xs text-white/35">Совет: после старта можно выключать музыку (иконка в правом верхнем углу).</div>
+    </div>
+  </div>
+
+  <!-- ========== AUDIO (preload hints, will be played only after user gesture) ========== -->
+  <audio id="music-hub" loop src="music.mp3" preload="auto"></audio>
+  <audio id="music-level1" loop src="level1.mp3" preload="auto"></audio>
+  <audio id="music-level2" loop src="level2.mp3" preload="auto"></audio>
+  <audio id="music-level3" loop src="level3.mp3" preload="auto"></audio>
+  <audio id="music-level4" loop src="level4.mp3" preload="auto"></audio>
+  <audio id="music-level5" loop src="level5.mp3" preload="auto"></audio>
+  <audio id="music-level6" loop src="level6.mp3" preload="auto"></audio>
+  <audio id="sfx-whoosh" src="whoosh.mp3" preload="auto"></audio>
+  <audio id="sfx-hooray" src="hooray.mp3" preload="auto"></audio>
+
+  <!-- ========== GAME CONTAINER ========== -->
+  <div id="game-container" role="application" aria-label="Сквозь время">
+
+    <!-- Toast / status -->
+    <div id="toast" class="toast">
+      <div class="px-4 py-2 rounded-full bg-black/60 border border-white/10 text-sm text-white/90 shadow-lg">—</div>
+    </div>
+
+    <!-- Progress (always visible) -->
+    <div class="absolute top-3 left-3 z-40">
+      <div class="progress-pill px-3 py-2 rounded-xl bg-black/40 border border-white/10">
+        <div class="flex items-center justify-between gap-3">
+          <div class="text-xs text-white/75">Прогресс</div>
+          <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/6</div>
+        </div>
+        <div class="mt-2 h-1.5 w-32 sm:w-40 rounded-full bg-white/10 overflow-hidden">
+          <div id="mini-progress-bar" class="h-1.5 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top bar controls -->
+    <div class="absolute top-3 right-3 z-40 flex items-center gap-2">
+      <button id="btn-mute" class="px-3 py-2 rounded-xl bg-black/40 border border-white/10 hover:bg-black/55 transition" type="button" aria-pressed="false" title="Вкл/выкл звук">
+        <span id="mute-icon">🔊</span>
+      </button>
+      <div class="hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl bg-black/40 border border-white/10">
+        <span class="text-xs text-white/70">Громкость</span>
+        <input id="volume" type="range" min="0" max="1" step="0.01" class="w-28" />
+      </div>
+    </div>
+
+    <!-- Intro -->
+    <section id="intro" class="scene active" aria-label="Интро" data-bg="1.jpg">
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl" style="text-shadow:0 2px 4px rgba(0,0,0,.9)">Буффало. 23:55</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95" style="text-shadow:0 2px 4px rgba(0,0,0,.9)">
+          В комнате тихо, только мерцает ёлка.<br>
+          Под ней лежит странная тетрадь...
+        </p>
+        <button id="btn-open" class="mt-5 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition shadow-[0_10px_26px_rgba(0,0,0,.45)]" type="button">Открыть тетрадь</button>
+        <div class="mt-3 text-xs text-white/55">Подсказка: Enter — подтвердить ответ, Esc — назад.</div>
+      </div>
+    </section>
+
+    <!-- Hub -->
+    <section id="hub" class="scene" aria-label="Хаб" data-bg="hub.jpg">
+      <div class="w-full h-full p-[5%] relative flex items-center justify-between">
+
+        <!-- Left stars -->
+        <div class="flex flex-col justify-center gap-[5vh]">
+          <button class="star" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
+          <button class="star" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
+          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
+        </div>
+
+        <!-- Center -->
+        <div class="flex-1 flex flex-col items-center justify-center">
+          <button id="final-btn" class="hidden px-8 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black shadow-[0_10px_30px_rgba(255,215,0,.25)] hover:bg-white transition" type="button">📖 Записать своё имя</button>
+
+          <div class="mt-5 w-[min(420px,92%)]">
+            <div class="flex items-center justify-between text-xs text-white/70 mb-1">
+              <span>Шаги по воспоминаниям</span>
+              <span id="hub-progress-text" class="font-bold text-[var(--gold)]">0/6</span>
+            </div>
+            <div class="h-2 rounded-full bg-white/10 overflow-hidden">
+              <div id="hub-progress-bar" class="h-2 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
+            </div>
+          </div>
+
+          <button id="reset-btn" class="mt-4 px-6 py-2 rounded-full text-sm font-semibold border border-white/15 bg-black/20 hover:bg-black/40 transition" type="button">Сбросить прогресс</button>
+        </div>
+
+        <!-- Right stars -->
+        <div class="flex flex-col justify-center gap-[5vh]">
+          <button class="star" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
+          <button class="star" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
+          <button class="star" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
+        </div>
+
+        <div class="absolute bottom-7 left-1/2 -translate-x-1/2 text-white/70 text-center text-sm sm:text-base" style="animation:pulse 2s infinite">
+          ✨ Нажми на звёздочку, чтобы начать воспоминание
+        </div>
+      </div>
+    </section>
+
+    <!-- Levels -->
+    <section id="level-1" class="scene" data-bg="level1.jpg" aria-label="Уровень 1">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №1</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Москва, 3 года назад. Что осветило небо над Кремлём?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" inputmode="text" autocomplete="off" id="ans-1" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-1">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="1" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-1" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-1" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="1" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-2" class="scene" data-bg="level2.jpg" aria-label="Уровень 2">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №2</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Крит. Ливень. Где мы спрятались и смеялись?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-2" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-2">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="2" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-2" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-2" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="2" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-3" class="scene" data-bg="level3.jpg" aria-label="Уровень 3">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №3</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">День рождения. Какой необычный предмет был на столе?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-3" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-3">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="3" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-3" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-3" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="3" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-4" class="scene" data-bg="level4.jpg" aria-label="Уровень 4">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №4</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Зимняя прогулка. По какой реке мы гуляли?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-4" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-4">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="4" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-4" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-4" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="4" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-5" class="scene" data-bg="level5.jpg" aria-label="Уровень 5">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №5</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Летний вечер. Что мы запускали в небо?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-5" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-5">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="5" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-5" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-5" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="5" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <section id="level-6" class="scene" data-bg="level6.jpg" aria-label="Уровень 6">
+      <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
+      <div class="overlay">
+        <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №6</h2>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Самое главное. Что связывает нас навсегда?</p>
+        <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-6" placeholder="Твой ответ..." />
+
+        <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
+          <span>Попытки: <span id="attempts-6">0</span></span>
+          <button class="hint-btn text-white/70 hover:text-white underline underline-offset-4" data-level="6" type="button">Показать подсказку</button>
+        </div>
+        <div id="hint-6" class="mt-2 hidden text-sm text-white/85"></div>
+
+        <div id="msg-6" class="mt-2 h-7 font-bold"></div>
+        <button class="answer-btn mt-2 px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" data-level="6" type="button">Ответить</button>
+      </div>
+    </section>
+
+    <!-- Finale -->
+    <section id="finale" class="scene" aria-label="Финал" data-bg="hub_open.jpg">
+      <div class="absolute inset-0" style="background:rgba(0,0,0,.6)"></div>
+
+      <!-- Floating name runners -->
+      <div id="name-stream" aria-hidden="true"></div>
+
+      <div class="relative w-full h-full flex items-center justify-center" style="z-index:30">
+        <div class="w-[min(760px,92%)] text-center px-4">
+          <h1 class="text-[var(--gold)] font-black mb-4" style="font-size:clamp(2rem,6vw,3.5rem); text-shadow:0 0 30px rgba(255,215,0,.7)">🎄 С Новым Годом! 🎄</h1>
+          <p class="text-white/90" style="font-size:clamp(1rem,3vw,1.5rem)">Скоро увидимся.</p>
+
+          <div class="mt-6 mx-auto w-[min(560px,96%)]">
+            <div class="text-xs text-white/65 mb-2">Бонус: напиши имя — и «кругляшок» аккуратно упадёт в стаканчик.</div>
+            <div id="cup-canvas" class="relative w-full h-[220px] sm:h-[260px] rounded-2xl border border-white/10 bg-black/20 overflow-hidden"></div>
+          </div>
+
+          <div class="mt-7 flex flex-col items-center gap-3">
+            <label class="text-white/70 text-sm" for="final-name">Записать имя в тетрадь</label>
+            <input id="final-name" class="answer-input w-[260px] sm:w-[320px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="name" placeholder="Например, Руслан" />
+            <div class="flex items-center gap-2 flex-wrap justify-center">
+              <button id="final-save" class="px-10 py-3 rounded-full font-extrabold bg-[var(--gold)] text-black hover:bg-white transition" type="button">Сохранить</button>
+            </div>
+            <div id="final-note" class="h-7 font-semibold"></div>
+          </div>
+
+          <p class="mt-7 italic text-[var(--gold)]">С любовью из России ❤️</p>
+          <button id="back-to-hub" class="mt-5 px-7 py-2 rounded-full text-sm font-semibold border border-white/15 bg-black/25 hover:bg-black/45 transition" type="button">← В хаб</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+    // =================================================
+    // CONFIG
+    // =================================================
+    const CONFIG = {
+      storageKey: 'svk-time-progress-v4',
+      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg'],
+      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3'],
+      reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+      sceneMs: 650
+    };
+
+    const LEVELS = {
+      1: {
+        answers: ['салют', 'фейерверк', 'фейерверки'],
+        hints: ['Подсказка: Бах-бах и красиво!', 'Ещё подсказка: это запускают на праздники над городом.']
+      },
+      2: {
+        answers: ['таверна', 'кафе', 'ресторан'],
+        hints: ['Подсказка: Там кормили...', 'Ещё подсказка: мы спрятались там, где подают еду и напитки.']
+      },
+      3: {
+        answers: ['матрёшка', 'матрешка', 'матрешку', 'матрёшку'],
+        hints: ['Подсказка: Русский сувенир', 'Ещё подсказка: кукла, внутри которой есть ещё одна.']
+      },
+      4: {
+        answers: ['сходня', 'река сходня'],
+        hints: ['Подсказка: Река в Подмосковье', 'Ещё подсказка: короткое название из 6 букв.']
+      },
+      5: {
+        answers: ['фонарик', 'фонарик желаний', 'небесный фонарик', 'китайский фонарик', 'небесные фонарики'],
+        hints: ['Подсказка: Светится и летит...', 'Ещё подсказка: это «небесный фонарик».']
+      },
+      6: {
+        answers: ['семья', 'любовь'],
+        hints: ['Подсказка: Мы — это...', 'Ещё подсказка: то, что сильнее расстояния.']
+      },
+    };
+
+    // =================================================
+    // HELPERS
+    // =================================================
+    function normalizeAnswer(s){
+      return (s || '')
+        .toLowerCase()
+        .trim()
+        .replace(/ё/g,'е')
+        .replace(/[\p{P}\p{S}]+/gu, ' ')
+        .replace(/\s+/g, ' ');
+    }
+
+    function safePlay(audio){
+      if (!audio) return;
+      try{
+        const p = audio.play();
+        if (p && typeof p.catch === 'function') p.catch(()=>{});
+      }catch(e){}
+    }
+
+    function safePause(audio){
+      if (!audio) return;
+      try{ audio.pause(); }catch(e){}
+    }
+
+    // Viewport stabilization:
+    // 1) Freeze app/game heights in px based on the initial stable viewport (prevents toolbar show/hide from causing jumps).
+    // 2) Keyboard handling: lock padding once per focus (prevents VisualViewport jitter from bouncing UI).
+    let __lastKbd = -1;
+    let __frozen = false;
+    let __inputFocused = false;
+    let __kbdSampleTimer = null;
+
+    function freezeHeights(){
+      if (__frozen) return;
+      const vv = window.visualViewport;
+      const h = vv ? Math.round(vv.height) : Math.round(window.innerHeight);
+      const appH = Math.max(520, h);
+      const gameH = Math.round(appH * 0.85);
+      document.documentElement.style.setProperty('--app-h', appH + 'px');
+      document.documentElement.style.setProperty('--game-h', gameH + 'px');
+      __frozen = true;
+    }
+
+    // Keeps derived viewport variables consistent with frozen px heights.
+    // IMPORTANT: Must exist because we call it during init/orientationchange.
+    function setViewportVars(){
+      try{
+        const appH = getComputedStyle(document.documentElement).getPropertyValue('--app-h').trim();
+        const m = appH.match(/^(\d+)px$/);
+        if (m){
+          const appPx = Number(m[1]) || window.innerHeight;
+          const fallPx = Math.round(appPx * 0.95);
+          document.documentElement.style.setProperty('--fall-h', fallPx + 'px');
+        }
+      }catch(e){}
+    }
+
+    function applyKbdPx(kbdPx){
+      const k = Math.max(0, Math.round(kbdPx));
+      // Ignore tiny values (address bar, small resizes)
+      const normalized = (k < 140) ? 0 : (Math.round(k / 10) * 10);
+      if (__lastKbd < 0 || normalized !== __lastKbd){
+        document.documentElement.style.setProperty('--kbd', normalized + 'px');
+        __lastKbd = normalized;
+      }
+    }
+
+    function lockKeyboardHeightOnce(){
+      if (!__inputFocused) return;
+      const vv = window.visualViewport;
+      if (!vv){
+        applyKbdPx(0);
+        return;
+      }
+
+      // Sample for a short time and keep the maximum.
+      // (Keyboards can change height slightly due to suggestion bars, language switch, etc.)
+      let samples = 0;
+      let maxKbd = 0;
+
+      clearInterval(__kbdSampleTimer);
+      __kbdSampleTimer = setInterval(() => {
+        const current = Math.max(0, Math.round(window.innerHeight - vv.height));
+        maxKbd = Math.max(maxKbd, current);
+        samples++;
+
+        if (samples >= 10){
+          clearInterval(__kbdSampleTimer);
+          __kbdSampleTimer = null;
+          applyKbdPx(maxKbd);
+        }
+      }, 60);
+    }
+
+    function resetKeyboardPadding(){
+      clearInterval(__kbdSampleTimer);
+      __kbdSampleTimer = null;
+      applyKbdPx(0);
+    }
+
+    function randBallColor(){
+      const h = Math.floor(Math.random()*360);
+      const s = 82;
+      const l = 46 + Math.random()*22; // 46..68
+      return `hsl(${h} ${s}% ${l}%)`;
+    }
+
+    function textColorForHsl(hsl){
+      const m = String(hsl).match(/hsl\((\d+)\s+(\d+)%\s+(\d+)%\)/i);
+      const l = m ? Number(m[3]) : 60;
+      return l > 58 ? '#101010' : '#ffffff';
+    }
+
+    function truncateForBall(name){
+      const s = (name || '').trim();
+      if (!s) return '';
+      return s.length > 10 ? (s.slice(0, 10) + '…') : s;
+    }
+
+    // =================================================
+    // GAME ENGINE
+    // =================================================
+    const game = {
+      el: {
+        container: document.getElementById('game-container'),
+        loading: document.getElementById('loading-screen'),
+        progressBar: document.getElementById('progress-bar'),
+        progressText: document.getElementById('progress-text'),
+        startBtn: document.getElementById('start-button'),
+        muteOnStartBtn: document.getElementById('mute-on-start'),
+        skipPreload: document.getElementById('skip-preload'),
+        toast: document.getElementById('toast'),
+        toastInner: document.querySelector('#toast > div'),
+
+        btnOpen: document.getElementById('btn-open'),
+        finalBtn: document.getElementById('final-btn'),
+        resetBtn: document.getElementById('reset-btn'),
+        btnMute: document.getElementById('btn-mute'),
+        muteIcon: document.getElementById('mute-icon'),
+        volume: document.getElementById('volume'),
+
+        miniProgressText: document.getElementById('mini-progress-text'),
+        miniProgressBar: document.getElementById('mini-progress-bar'),
+        hubProgressText: document.getElementById('hub-progress-text'),
+        hubProgressBar: document.getElementById('hub-progress-bar'),
+
+        finalName: document.getElementById('final-name'),
+        finalSave: document.getElementById('final-save'),
+        finalNote: document.getElementById('final-note'),
+        backToHub: document.getElementById('back-to-hub'),
+        nameStream: document.getElementById('name-stream'),
+        cupCanvasWrap: document.getElementById('cup-canvas'),
+      },
+
+      audio: {
+        hub: document.getElementById('music-hub'),
+        sfxWhoosh: document.getElementById('sfx-whoosh'),
+        sfxHooray: document.getElementById('sfx-hooray'),
+        level: {
+          1: document.getElementById('music-level1'),
+          2: document.getElementById('music-level2'),
+          3: document.getElementById('music-level3'),
+          4: document.getElementById('music-level4'),
+          5: document.getElementById('music-level5'),
+          6: document.getElementById('music-level6'),
+        }
+      },
+
+      state: {
+        started: false,
+        muted: false,
+        volume: 0.4,
+        currentLevel: null,
+        completed: [false, false, false, false, false, false],
+        attempts: [0,0,0,0,0,0],
+        snowTimer: null,
+        physicsReady: false,
+      },
+
+      physics: {
+        engine: null,
+        runner: null,
+        render: null,
+        balls: [],
+        afterRenderHandler: null,
+        cup: { x:0, y:0, w:0, h:0 }
+      },
+
+      // -------- Storage --------
+      loadState(){
+        try{
+          const raw = localStorage.getItem(CONFIG.storageKey);
+          if (!raw) return;
+          const data = JSON.parse(raw);
+          if (Array.isArray(data.completed) && data.completed.length === 6) this.state.completed = data.completed.map(Boolean);
+          if (Array.isArray(data.attempts) && data.attempts.length === 6) this.state.attempts = data.attempts.map(n => Number(n)||0);
+          if (typeof data.muted === 'boolean') this.state.muted = data.muted;
+          if (typeof data.volume === 'number') this.state.volume = Math.min(1, Math.max(0, data.volume));
+          if (typeof data.name === 'string') this.el.finalName.value = data.name;
+        }catch(e){}
+      },
+
+      saveState(extra={}){
+        try{
+          const data = {
+            completed: this.state.completed,
+            attempts: this.state.attempts,
+            muted: this.state.muted,
+            volume: this.state.volume,
+            name: this.el.finalName.value || '',
+            ...extra,
+          };
+          localStorage.setItem(CONFIG.storageKey, JSON.stringify(data));
+        }catch(e){}
+      },
+
+      resetProgress(){
+        this.state.completed = [false,false,false,false,false,false];
+        this.state.attempts = [0,0,0,0,0,0];
+        this.saveState();
+        this.syncHubUI();
+        this.toast('Прогресс сброшен');
+      },
+
+      // -------- UI --------
+      toast(text){
+        if (!this.el.toast || !this.el.toastInner) return;
+        this.el.toastInner.textContent = text;
+        this.el.toast.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(()=> this.el.toast.classList.remove('show'), 1600);
+      },
+
+      activeScene(){
+        return document.querySelector('.scene.active');
+      },
+
+      showScene(id){
+        const next = document.getElementById(id);
+        if (!next) return;
+        const prev = this.activeScene();
+        if (prev && prev.id === id) return;
+
+        // aria-hidden
+        document.querySelectorAll('.scene').forEach(s => s.setAttribute('aria-hidden', 'true'));
+        next.setAttribute('aria-hidden', 'false');
+
+        // Background: from scene data-bg
+        const bg = next.dataset && next.dataset.bg ? next.dataset.bg : null;
+        if (bg) this.setBackground(bg);
+
+        // prepare enter
+        next.classList.add('active', 'entering');
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => next.classList.remove('entering'));
+        });
+
+        if (prev){
+          prev.classList.add('leaving');
+          setTimeout(() => {
+            prev.classList.remove('active', 'leaving');
+          }, CONFIG.sceneMs);
+        }
+      },
+
+      setBackground(src){
+        this.el.container.style.backgroundImage = `url("${src}")`;
+      },
+
+      syncAudioUI(){
+        this.el.btnMute.setAttribute('aria-pressed', String(this.state.muted));
+        this.el.muteIcon.textContent = this.state.muted ? '🔇' : '🔊';
+        if (this.el.volume) this.el.volume.value = String(this.state.volume);
+
+        const all = [this.audio.hub, this.audio.sfxWhoosh, this.audio.sfxHooray, ...Object.values(this.audio.level)];
+        all.forEach(a => {
+          if (!a) return;
+          a.muted = this.state.muted;
+          if (a === this.audio.sfxWhoosh) a.volume = Math.min(1, this.state.volume + 0.3);
+          else if (a === this.audio.sfxHooray) a.volume = Math.min(1, this.state.volume + 0.25);
+          else a.volume = this.state.volume;
+        });
+      },
+
+      syncProgressUI(){
+        const done = this.state.completed.filter(Boolean).length;
+        const pct = Math.round((done/6)*100);
+        if (this.el.miniProgressText) this.el.miniProgressText.textContent = `${done}/6`;
+        if (this.el.miniProgressBar) this.el.miniProgressBar.style.width = pct + '%';
+        if (this.el.hubProgressText) this.el.hubProgressText.textContent = `${done}/6`;
+        if (this.el.hubProgressBar) this.el.hubProgressBar.style.width = pct + '%';
+      },
+
+      syncHubUI(){
+        document.querySelectorAll('.star').forEach(star => {
+          const lvl = Number(star.dataset.level);
+          const done = this.state.completed[lvl-1];
+          star.classList.toggle('completed', !!done);
+        });
+
+        const allDone = this.state.completed.every(Boolean);
+        if (allDone) this.el.finalBtn.classList.remove('hidden');
+        else this.el.finalBtn.classList.add('hidden');
+
+        this.setBackground(allDone ? 'hub_open.jpg' : 'hub.jpg');
+        this.syncProgressUI();
+      },
+
+      syncLevelMeta(n){
+        const a = this.state.attempts[n-1] || 0;
+        const attemptsEl = document.getElementById('attempts-' + n);
+        if (attemptsEl) attemptsEl.textContent = String(a);
+
+        const hintEl = document.getElementById('hint-' + n);
+        if (hintEl){
+          const hints = (LEVELS[n] && LEVELS[n].hints) ? LEVELS[n].hints : [];
+          const idx = a >= 2 ? 1 : 0;
+          hintEl.textContent = hints[idx] || '';
+        }
+      },
+
+      // -------- Audio control --------
+      stopAllLevelMusic(){
+        Object.values(this.audio.level).forEach(m => {
+          safePause(m);
+          try{ m.currentTime = 0; }catch(e){}
+        });
+      },
+
+      playLevelMusic(n){
+        this.stopAllLevelMusic();
+        safePause(this.audio.hub);
+        const m = this.audio.level[n];
+        if (!m) return;
+        try{ m.currentTime = 0; }catch(e){}
+        safePlay(m);
+      },
+
+      // -------- Flow --------
+      async preloadAll(){
+        const assets = [...CONFIG.images.map(src => ({type:'img', src})), ...CONFIG.sounds.map(src => ({type:'audio', src}))];
+        const total = assets.length;
+        let loaded = 0;
+        let doneFlag = false;
+
+        const mark = () => {
+          if (doneFlag) return;
+          loaded++;
+          const pct = Math.round((loaded/total)*100);
+          this.el.progressBar.style.width = pct + '%';
+          this.el.progressText.textContent = pct + '%';
+          if (loaded >= total){
+            doneFlag = true;
+            this.el.progressText.textContent = 'Готово!';
+            this.el.startBtn.classList.remove('hidden');
+            this.el.skipPreload.classList.add('hidden');
+          }
         };
 
-        // Поехали!
-        game.init();
-    </script>
+        // Show skip only if still not ready after delay
+        setTimeout(()=> {
+          if (!doneFlag) this.el.skipPreload.classList.remove('hidden');
+        }, 1800);
+
+        const preloadImg = (src) => new Promise(resolve => {
+          const img = new Image();
+          img.onload = () => { mark(); resolve(); };
+          img.onerror = () => { mark(); resolve(); };
+          img.src = src;
+        });
+
+        const preloadAudio = (src) => new Promise(resolve => {
+          const a = new Audio();
+          let finished = false;
+          const finish = () => { if (finished) return; finished = true; mark(); resolve(); };
+          a.preload = 'auto';
+          a.addEventListener('canplaythrough', finish, {once:true});
+          a.addEventListener('loadeddata', finish, {once:true});
+          a.addEventListener('error', finish, {once:true});
+          a.src = src;
+          setTimeout(finish, 2500);
+        });
+
+        await Promise.all(assets.map(a => a.type === 'img' ? preloadImg(a.src) : preloadAudio(a.src)));
+      },
+
+      start({mute=false}={}){
+        this.state.muted = !!mute;
+        this.state.started = true;
+        this.syncAudioUI();
+        this.saveState();
+
+        this.el.loading.classList.add('hidden');
+        setTimeout(() => {
+          this.el.container.classList.add('visible');
+          this.setBackground('1.jpg');
+          this.showScene('intro');
+          this.startSnow();
+        }, 250);
+      },
+
+      goToHub(){
+        this.showScene('hub');
+        this.stopAllLevelMusic();
+        this.syncHubUI();
+        safePlay(this.audio.hub);
+      },
+
+      goToLevel(n){
+        this.state.currentLevel = n;
+        this.showScene('level-' + n);
+        this.playLevelMusic(n);
+
+        const hintEl = document.getElementById('hint-' + n);
+        if (hintEl) hintEl.classList.add('hidden');
+        this.syncLevelMeta(n);
+
+        const input = document.getElementById('ans-' + n);
+        if (input) setTimeout(()=> input.focus(), 70);
+      },
+
+      backToHub(){
+        const n = this.state.currentLevel;
+        if (n){
+          const input = document.getElementById('ans-' + n);
+          const msg = document.getElementById('msg-' + n);
+          const hint = document.getElementById('hint-' + n);
+          if (input){ input.value = ''; input.disabled = false; }
+          if (msg){ msg.textContent = ''; msg.style.color = ''; }
+          if (hint){ hint.classList.add('hidden'); }
+        }
+        this.state.currentLevel = null;
+        this.goToHub();
+      },
+
+      completeLevel(n){
+        if (!this.state.completed[n-1]){
+          this.state.completed[n-1] = true;
+          this.saveState();
+          try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
+          safePlay(this.audio.sfxWhoosh);
+          this.toast('Воспоминание сохранено');
+        }
+        this.syncHubUI();
+      },
+
+      checkAnswer(n){
+        const input = document.getElementById('ans-' + n);
+        const msg = document.getElementById('msg-' + n);
+        const backBtn = document.querySelector('#level-' + n + ' .back-btn');
+        if (!input || !msg) return;
+
+        const val = normalizeAnswer(input.value);
+        this.state.attempts[n-1] = (this.state.attempts[n-1] || 0) + 1;
+        this.saveState();
+        this.syncLevelMeta(n);
+
+        const answers = (LEVELS[n] && Array.isArray(LEVELS[n].answers)) ? LEVELS[n].answers : [];
+        const ok = answers.some(a => {
+          const na = normalizeAnswer(a);
+          return na && val.includes(na);
+        });
+
+        if (ok){
+          msg.textContent = '✓ Верно!';
+          msg.style.color = '#4cd137';
+
+          if (backBtn){ backBtn.disabled = true; backBtn.style.opacity = '0.35'; backBtn.style.pointerEvents = 'none'; }
+          input.disabled = true;
+
+          setTimeout(() => {
+            if (backBtn){ backBtn.disabled = false; backBtn.style.opacity = '1'; backBtn.style.pointerEvents = 'auto'; }
+            input.disabled = false;
+            this.completeLevel(n);
+            this.backToHub();
+          }, 900);
+        } else {
+          const attempts = this.state.attempts[n-1];
+          const hints = (LEVELS[n] && LEVELS[n].hints) ? LEVELS[n].hints : ['Подумай ещё раз'];
+          const hintText = hints[attempts >= 2 ? 1 : 0] || hints[0];
+
+          msg.textContent = '✗ ' + hintText;
+          msg.style.color = '#e84118';
+          input.classList.remove('shake');
+          void input.offsetWidth;
+          input.classList.add('shake');
+        }
+      },
+
+      // -------- Finale name stream --------
+      updateNameStream(){
+        const nameRaw = this.el.finalName.value || '';
+        const name = nameRaw.trim();
+        if (!this.el.nameStream) return;
+        this.el.nameStream.innerHTML = '';
+        if (!name) return;
+
+        const count = 9;
+        for (let i=0;i<count;i++){
+          const el = document.createElement('div');
+          const dir = (Math.random() < 0.8) ? 'rtl' : 'ltr';
+          const dur = 18 + Math.random()*14; // slower
+          const top = 8 + Math.random()*78;  // random Y
+          const size = 14 + Math.random()*10;
+          const opacity = 0.45 + Math.random()*0.45;
+
+          el.className = 'name-runner ' + dir;
+          el.textContent = name;
+          el.style.top = top + '%';
+          el.style.fontSize = size + 'px';
+          el.style.opacity = String(opacity);
+          el.style.animationDuration = dur + 's';
+          el.style.animationDelay = (-Math.random()*dur) + 's';
+
+          this.el.nameStream.appendChild(el);
+        }
+      },
+
+      goToFinale(){
+        this.showScene('finale');
+        this.setBackground('hub_open.jpg');
+        safePlay(this.audio.hub);
+        this.playHooray3Times();
+        this.initPhysics();
+        this.updateNameStream();
+        setTimeout(()=> this.el.finalName.focus(), 120);
+      },
+
+      playHooray3Times(){
+        const delays = [0, 450, 900];
+        delays.forEach(d => {
+          setTimeout(() => {
+            const s = this.audio.sfxHooray;
+            if (!s) return;
+            const clone = s.cloneNode(true);
+            clone.volume = Math.min(1, this.state.volume + 0.25);
+            clone.muted = this.state.muted;
+            safePlay(clone);
+          }, d);
+        });
+      },
+
+      // -------- Physics (Matter.js) --------
+      destroyPhysics(){
+        try{
+          const Matter = window.Matter;
+          if (!Matter) return;
+          if (this.physics.render && this.physics.afterRenderHandler){
+            try{ Matter.Events.off(this.physics.render, 'afterRender', this.physics.afterRenderHandler); }catch(e){}
+          }
+          if (this.physics.runner){ Matter.Runner.stop(this.physics.runner); }
+          if (this.physics.render){
+            Matter.Render.stop(this.physics.render);
+            if (this.physics.render.canvas && this.physics.render.canvas.remove) this.physics.render.canvas.remove();
+          }
+        }catch(e){}
+        this.physics = { engine:null, runner:null, render:null, balls:[], afterRenderHandler:null, cup:{x:0,y:0,w:0,h:0} };
+        this.state.physicsReady = false;
+      },
+
+      initPhysics(){
+        if (this.state.physicsReady) return;
+        if (!this.el.cupCanvasWrap) return;
+        if (!window.Matter) return;
+
+        // Clear any previous
+        this.el.cupCanvasWrap.innerHTML = '';
+
+        const {Engine, Render, Runner, Bodies, Composite, Events} = window.Matter;
+
+        const w = Math.max(280, this.el.cupCanvasWrap.clientWidth);
+        const h = Math.max(180, this.el.cupCanvasWrap.clientHeight);
+
+        const engine = Engine.create();
+        engine.gravity.y = 1.05;
+
+        const render = Render.create({
+          element: this.el.cupCanvasWrap,
+          engine,
+          options: {
+            width: w,
+            height: h,
+            wireframes: false,
+            background: 'transparent',
+            pixelRatio: Math.min(2, window.devicePixelRatio || 1)
+          }
+        });
+
+        // World bounds
+        const thickness = 30;
+        const ground = Bodies.rectangle(w/2, h + thickness/2, w + 200, thickness, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.06)'} });
+        const leftWall = Bodies.rectangle(-thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
+        const rightWall = Bodies.rectangle(w+thickness/2, h/2, thickness, h+200, { isStatic:true, render:{fillStyle:'transparent'} });
+
+        // Cup (a "U" shape) — narrower (~2x)
+        const cupW = Math.min(160, w * 0.30);
+        const cupH = Math.min(150, h * 0.55);
+        const cupX = w/2;
+        const cupY = h - 22;
+        const wallT = 18;
+
+        this.physics.cup = { x: cupX, y: cupY, w: cupW, h: cupH };
+
+        const cupBottom = Bodies.rectangle(cupX, cupY, cupW, wallT, {
+          isStatic:true,
+          chamfer: { radius: 8 },
+          render:{ fillStyle:'rgba(255,215,0,0.28)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+        });
+
+        const cupLeft = Bodies.rectangle(cupX - cupW/2 + wallT/2, cupY - cupH/2, wallT, cupH, {
+          isStatic:true,
+          chamfer: { radius: 10 },
+          render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+        });
+
+        const cupRight = Bodies.rectangle(cupX + cupW/2 - wallT/2, cupY - cupH/2, wallT, cupH, {
+          isStatic:true,
+          chamfer: { radius: 10 },
+          render:{ fillStyle:'rgba(255,215,0,0.22)', strokeStyle:'rgba(255,215,0,0.55)', lineWidth:1 }
+        });
+
+        const platform = Bodies.rectangle(cupX, cupY - 1, Math.max(30, cupW - wallT*2), 6, { isStatic:true, render:{fillStyle:'rgba(255,255,255,0.03)'} });
+
+        Composite.add(engine.world, [ground, leftWall, rightWall, cupBottom, cupLeft, cupRight, platform]);
+
+        const runner = Runner.create();
+        Render.run(render);
+        Runner.run(runner, engine);
+
+        // Draw text on balls
+        const afterRender = () => {
+          const ctx = render.context;
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          for (const ball of this.physics.balls){
+            const t = ball && ball._text ? ball._text : '';
+            if (!t) continue;
+
+            const pos = ball.position;
+            const r = ball.circleRadius || 16;
+            const fontBase = Math.max(9, Math.min(14, r * 0.78));
+
+            ctx.save();
+            ctx.translate(pos.x, pos.y);
+            ctx.rotate(ball.angle || 0);
+
+            ctx.font = `800 ${fontBase}px ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+
+            // If too wide, scale down
+            const maxW = r * 1.55;
+            const wTxt = ctx.measureText(t).width;
+            const scale = wTxt > maxW ? (maxW / wTxt) : 1;
+            ctx.scale(scale, 1);
+
+            // Text styling
+            ctx.fillStyle = ball._textColor || '#101010';
+            ctx.shadowColor = 'rgba(0,0,0,.35)';
+            ctx.shadowBlur = 6;
+            ctx.fillText(t, 0, 0);
+
+            ctx.restore();
+          }
+          ctx.restore();
+        };
+
+        Events.on(render, 'afterRender', afterRender);
+
+        this.physics.engine = engine;
+        this.physics.render = render;
+        this.physics.runner = runner;
+        this.physics.afterRenderHandler = afterRender;
+        this.state.physicsReady = true;
+
+        // Keep cup responsive.
+        // NOTE: On mobile, `resize` can fire often (URL bar, keyboard) and may cause visible jumps.
+        // So we only re-init physics on orientation change (handled elsewhere).
+        if (!this._physicsResizeBound){
+          this._physicsResizeBound = () => {};
+          window.addEventListener('orientationchange', () => {
+            if (!this.state.physicsReady) return;
+            setTimeout(() => {
+              this.destroyPhysics();
+              this.initPhysics();
+            }, 220);
+          }, {passive:true});
+        }
+      },
+
+      dropBallWithName(name){
+        if (!this.state.physicsReady || !this.physics.engine) return;
+        if (!window.Matter) return;
+
+        const {Bodies, Composite} = window.Matter;
+        const w = this.physics.render.options.width;
+        const h = this.physics.render.options.height;
+
+        const r = 18;
+        const color = randBallColor();
+        const txt = truncateForBall(name);
+
+        // Drop roughly above cup
+        const cupX = this.physics.cup && this.physics.cup.x ? this.physics.cup.x : (w/2);
+        const x = cupX + (Math.random()*28 - 14);
+        const y = 10;
+
+        const ball = Bodies.circle(x, y, r, {
+          restitution: 0.35,
+          friction: 0.02,
+          frictionAir: 0.002,
+          density: 0.0022,
+          render: {
+            fillStyle: color,
+            strokeStyle: 'rgba(0,0,0,.55)',
+            lineWidth: 2
+          }
+        });
+
+        ball._text = txt;
+        ball._textColor = textColorForHsl(color);
+
+        Composite.add(this.physics.engine.world, ball);
+        this.physics.balls.push(ball);
+
+        // Cleanup ONLY when balls really fall out below the visible simulation area.
+        // (Do not cap by count — user wants the cup to be able to overflow naturally.)
+        const killY = h + 260;
+        const killXPad = 260;
+        const alive = [];
+        for (const b of this.physics.balls){
+          if (!b || !b.position) continue;
+          const out = (b.position.y > killY) || (b.position.x < -killXPad) || (b.position.x > w + killXPad);
+          if (out){
+            try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
+          } else {
+            alive.push(b);
+          }
+        }
+        this.physics.balls = alive;
+
+        // Emergency safety cap (should almost never trigger; keep high so cup can overflow visually)
+        if (this.physics.balls.length > 600){
+          const extra = this.physics.balls.length - 600;
+          for (let i=0;i<extra;i++){
+            const b = this.physics.balls[i];
+            try{ Composite.remove(this.physics.engine.world, b); }catch(e){}
+          }
+          this.physics.balls = this.physics.balls.slice(extra);
+        }
+
+        // tiny whoosh
+        try{ this.audio.sfxWhoosh.currentTime = 0; }catch(e){}
+        safePlay(this.audio.sfxWhoosh);
+      },
+
+      // -------- Snow --------
+      startSnow(){
+        if (CONFIG.reducedMotion) return;
+        if (this.state.snowTimer) return;
+
+        this.state.snowTimer = setInterval(() => {
+          if (!this.el.container.classList.contains('visible')) return;
+          const snow = document.createElement('div');
+          snow.textContent = '❄';
+          snow.className = 'snowflake';
+          snow.style.left = (Math.random() * 100) + '%';
+          snow.style.opacity = String(Math.random() * 0.9 + 0.1);
+          snow.style.fontSize = (Math.random() * 18 + 10) + 'px';
+          snow.style.color = 'rgba(255,255,255,.95)';
+          snow.style.animationDuration = (Math.random() * 3 + 2.2) + 's';
+          this.el.container.appendChild(snow);
+          setTimeout(() => snow.remove(), 6000);
+        }, 260);
+      },
+
+      // -------- Events --------
+      bindEvents(){
+        // Loading controls
+        this.el.startBtn.addEventListener('click', () => this.start({mute:false}));
+        this.el.muteOnStartBtn.addEventListener('click', () => this.start({mute:true}));
+        this.el.skipPreload.addEventListener('click', () => {
+          this.el.progressText.textContent = 'Готово!';
+          this.el.startBtn.classList.remove('hidden');
+          this.el.skipPreload.classList.add('hidden');
+          this.toast('Предзагрузка пропущена');
+        });
+
+        // Intro
+        this.el.btnOpen.addEventListener('click', () => this.goToHub());
+
+        // Stars
+        document.querySelectorAll('.star').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const n = Number(btn.dataset.level);
+            if (!n) return;
+            this.goToLevel(n);
+          });
+        });
+
+        // Back buttons
+        document.querySelectorAll('.back-btn').forEach(btn => {
+          btn.addEventListener('click', () => this.backToHub());
+        });
+
+        // Answer buttons
+        document.querySelectorAll('.answer-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const n = Number(btn.dataset.level);
+            if (!n) return;
+            this.checkAnswer(n);
+          });
+        });
+
+        // Hint buttons
+        document.querySelectorAll('.hint-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const n = Number(btn.dataset.level);
+            const hintEl = document.getElementById('hint-' + n);
+            if (!hintEl) return;
+            this.syncLevelMeta(n);
+            hintEl.classList.toggle('hidden');
+          });
+        });
+
+        // Input: Enter submit, Esc back + mobile keyboard comfort
+        document.querySelectorAll('.answer-input').forEach(inp => {
+          inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter'){
+              const id = inp.id || '';
+              const m = id.match(/ans-(\d+)/);
+              if (m){ this.checkAnswer(Number(m[1])); }
+            }
+            if (e.key === 'Escape') this.backToHub();
+          });
+
+          inp.addEventListener('focus', () => {
+            __inputFocused = true;
+            // Lock keyboard height once (do NOT scrollIntoView here — it causes viewport jumps on mobile)
+            lockKeyboardHeightOnce();
+          });
+          inp.addEventListener('blur', () => {
+            __inputFocused = false;
+            resetKeyboardPadding();
+          });
+        });
+
+        // Keyboard global
+        window.addEventListener('keydown', (e) => {
+          if (!this.state.started) return;
+          if (e.key === 'Escape'){
+            const active = this.activeScene();
+            if (!active) return;
+            if (active.id && active.id.startsWith('level-')) this.backToHub();
+            if (active.id === 'finale') this.goToHub();
+          }
+        });
+
+        // Final button
+        this.el.finalBtn.addEventListener('click', () => this.goToFinale());
+        this.el.backToHub.addEventListener('click', () => this.goToHub());
+
+        // Reset progress
+        this.el.resetBtn.addEventListener('click', () => {
+          if (confirm('Сбросить прогресс?')) this.resetProgress();
+        });
+
+        // Mute & volume
+        this.el.btnMute.addEventListener('click', () => {
+          this.state.muted = !this.state.muted;
+          this.syncAudioUI();
+          this.saveState();
+          this.toast(this.state.muted ? 'Звук выключен' : 'Звук включён');
+        });
+
+        if (this.el.volume){
+          this.el.volume.addEventListener('input', () => {
+            this.state.volume = Number(this.el.volume.value);
+            this.syncAudioUI();
+            this.saveState();
+          });
+        }
+
+        // Finale name -> stream
+        this.el.finalName.addEventListener('input', () => {
+          this.updateNameStream();
+          this.saveState({name: this.el.finalName.value});
+        });
+
+        this.el.finalSave.addEventListener('click', () => {
+          const name = (this.el.finalName.value || '').trim();
+          if (!name){
+            this.el.finalNote.textContent = 'Напиши имя 🙂';
+            this.el.finalNote.style.color = '#ffd700';
+            this.el.finalName.focus();
+            return;
+          }
+          this.saveState({name});
+          this.el.finalNote.textContent = `Записано: ${name}`;
+          this.el.finalNote.style.color = '#4cd137';
+          this.playHooray3Times();
+          this.updateNameStream();
+          this.initPhysics();
+          this.dropBallWithName(name);
+        });
+
+        this.el.finalName.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') this.el.finalSave.click();
+          if (e.key === 'Escape') this.goToHub();
+        });
+
+        // VisualViewport updates can be very jittery on mobile (address bar/toolbar changes).
+        // We intentionally DO NOT live-update padding on every resize.
+        // Instead, we lock keyboard height once on input focus (see lockKeyboardHeightOnce()).
+
+        window.addEventListener('orientationchange', () => {
+          // On orientation change, allow re-freeze.
+          __frozen = false;
+          setTimeout(() => {
+            freezeHeights();
+            setViewportVars();
+          }, 160);
+        }, {passive:true});
+      },
+
+      // -------- Init --------
+      async init(){
+        // Freeze heights early to stop mobile browser bars from resizing the app.
+        freezeHeights();
+        setViewportVars();
+
+        this.loadState();
+        this.syncAudioUI();
+
+        await this.preloadAll();
+        this.setBackground('1.jpg');
+
+        this.bindEvents();
+
+        // reflect stored progress
+        this.syncHubUI();
+
+        // if name already exists, prepare runners (will be visible in finale)
+        this.updateNameStream();
+      }
+    };
+
+    game.init();
+  </script>
 </body>
 </html>
-
