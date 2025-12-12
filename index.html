@@ -237,7 +237,7 @@
       <div class="progress-pill px-3 py-2 rounded-xl bg-black/40 border border-white/10">
         <div class="flex items-center justify-between gap-3">
           <div class="text-xs text-white/75">Прогресс</div>
-          <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/6</div>
+          <div id="mini-progress-text" class="text-xs font-bold text-[var(--gold)]">0/4</div>
         </div>
         <div class="mt-2 h-1.5 w-32 sm:w-40 rounded-full bg-white/10 overflow-hidden">
           <div id="mini-progress-bar" class="h-1.5 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
@@ -274,10 +274,9 @@
       <div class="w-full h-full p-[5%] relative flex items-center justify-between">
 
         <!-- Left stars -->
-        <div class="flex flex-col justify-center gap-[5vh]">
+        <div class="flex flex-col justify-center gap-[7vh]">
           <button class="star" data-level="1" aria-label="Воспоминание 1" type="button">⭐</button>
           <button class="star" data-level="2" aria-label="Воспоминание 2" type="button">⭐</button>
-          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
         </div>
 
         <!-- Center -->
@@ -287,7 +286,7 @@
           <div class="mt-5 w-[min(420px,92%)]">
             <div class="flex items-center justify-between text-xs text-white/70 mb-1">
               <span>Шаги по воспоминаниям</span>
-              <span id="hub-progress-text" class="font-bold text-[var(--gold)]">0/6</span>
+              <span id="hub-progress-text" class="font-bold text-[var(--gold)]">0/4</span>
             </div>
             <div class="h-2 rounded-full bg-white/10 overflow-hidden">
               <div id="hub-progress-bar" class="h-2 rounded-full" style="width:0%; background:linear-gradient(90deg, #ffd700, #ff6b6b)"></div>
@@ -298,10 +297,9 @@
         </div>
 
         <!-- Right stars -->
-        <div class="flex flex-col justify-center gap-[5vh]">
+        <div class="flex flex-col justify-center gap-[7vh]">
+          <button class="star" data-level="3" aria-label="Воспоминание 3" type="button">⭐</button>
           <button class="star" data-level="4" aria-label="Воспоминание 4" type="button">⭐</button>
-          <button class="star" data-level="5" aria-label="Воспоминание 5" type="button">⭐</button>
-          <button class="star" data-level="6" aria-label="Воспоминание 6" type="button">⭐</button>
         </div>
 
         <div class="absolute bottom-7 left-1/2 -translate-x-1/2 text-white/70 text-center text-sm sm:text-base" style="animation:pulse 2s infinite">
@@ -315,7 +313,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №1</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Москва, 3 года назад. Что осветило небо над Кремлём?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Куда мы с тобой ездили в 2014 году?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" inputmode="text" autocomplete="off" id="ans-1" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -333,7 +331,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №2</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Крит. Ливень. Где мы спрятались и смеялись?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">На чём мы катались в Египте?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-2" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -351,7 +349,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №3</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">День рождения. Какой необычный предмет был на столе?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Какой салат мама любит делать на Новый год?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-3" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -369,7 +367,7 @@
       <button class="back-btn absolute top-4 left-4 z-40 px-4 py-2 rounded-full bg-black/45 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-black transition" data-action="back" type="button">← Назад</button>
       <div class="overlay">
         <h2 class="text-[var(--gold)] font-black tracking-[0.22em] uppercase text-lg sm:text-xl">Воспоминание №4</h2>
-        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Зимняя прогулка. По какой реке мы гуляли?</p>
+        <p class="mt-3 text-base sm:text-lg max-w-[720px] text-white/95">Москва, 3 года назад. Что осветило небо над Кремлём?</p>
         <input class="answer-input mt-4 w-[240px] sm:w-[280px] text-center text-lg px-3 py-2 rounded-md bg-white/10 border border-white/10 border-b-2 border-b-[var(--gold)]" type="text" autocomplete="off" id="ans-4" placeholder="Твой ответ..." />
 
         <div class="mt-2 text-xs text-white/65 flex items-center justify-center gap-3 flex-wrap">
@@ -458,39 +456,34 @@
     // CONFIG
     // =================================================
     const CONFIG = {
-      storageKey: 'svk-time-progress-v4',
-      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg', 'level5.jpg', 'level6.jpg'],
-      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3', 'level5.mp3', 'level6.mp3'],
+      storageKey: 'svk-time-progress-v5',
+      images: ['1.jpg', 'hub.jpg', 'hub_open.jpg', 'level1.jpg', 'level2.jpg', 'level3.jpg', 'level4.jpg'],
+      sounds: ['music.mp3', 'whoosh.mp3', 'hooray.mp3', 'level1.mp3', 'level2.mp3', 'level3.mp3', 'level4.mp3'],
       reducedMotion: window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
       sceneMs: 650
     };
 
+    // 4 игры (5-6 отключены)
     const LEVELS = {
       1: {
+        answers: ['крит', 'остров крит', 'греция'],
+        hints: ['Подсказка: Там был лабиринт минотавра.', 'Ещё подсказка: Это греческий остров.']
+      },
+      2: {
+        answers: ['верблюд', 'верблюды'],
+        hints: ['Подсказка: На них было тяжело залезать.', 'Ещё подсказка: Они часто катают туристов в пустыне.']
+      },
+      3: {
+        answers: ['оливье', 'салат оливье'],
+        hints: ['Подсказка: Там есть докторская колбаса.', 'Ещё подсказка: Самый новогодний салат.']
+      },
+      4: {
         answers: ['салют', 'фейерверк', 'фейерверки'],
         hints: ['Подсказка: Бах-бах и красиво!', 'Ещё подсказка: это запускают на праздники над городом.']
       },
-      2: {
-        answers: ['таверна', 'кафе', 'ресторан'],
-        hints: ['Подсказка: Там кормили...', 'Ещё подсказка: мы спрятались там, где подают еду и напитки.']
-      },
-      3: {
-        answers: ['матрёшка', 'матрешка', 'матрешку', 'матрёшку'],
-        hints: ['Подсказка: Русский сувенир', 'Ещё подсказка: кукла, внутри которой есть ещё одна.']
-      },
-      4: {
-        answers: ['сходня', 'река сходня'],
-        hints: ['Подсказка: Река в Подмосковье', 'Ещё подсказка: короткое название из 6 букв.']
-      },
-      5: {
-        answers: ['фонарик', 'фонарик желаний', 'небесный фонарик', 'китайский фонарик', 'небесные фонарики'],
-        hints: ['Подсказка: Светится и летит...', 'Ещё подсказка: это «небесный фонарик».']
-      },
-      6: {
-        answers: ['семья', 'любовь'],
-        hints: ['Подсказка: Мы — это...', 'Ещё подсказка: то, что сильнее расстояния.']
-      },
     };
+
+    const TOTAL_LEVELS = Object.keys(LEVELS).length;
 
     // =================================================
     // HELPERS
@@ -666,8 +659,8 @@
         muted: false,
         volume: 0.4,
         currentLevel: null,
-        completed: [false, false, false, false, false, false],
-        attempts: [0,0,0,0,0,0],
+        completed: Array(TOTAL_LEVELS).fill(false),
+        attempts: Array(TOTAL_LEVELS).fill(0),
         snowTimer: null,
         physicsReady: false,
       },
@@ -687,8 +680,17 @@
           const raw = localStorage.getItem(CONFIG.storageKey);
           if (!raw) return;
           const data = JSON.parse(raw);
-          if (Array.isArray(data.completed) && data.completed.length === 6) this.state.completed = data.completed.map(Boolean);
-          if (Array.isArray(data.attempts) && data.attempts.length === 6) this.state.attempts = data.attempts.map(n => Number(n)||0);
+
+          // Migrate/normalize arrays to TOTAL_LEVELS
+          if (Array.isArray(data.completed)){
+            const arr = data.completed.map(Boolean);
+            this.state.completed = Array.from({length: TOTAL_LEVELS}, (_, i) => !!arr[i]);
+          }
+          if (Array.isArray(data.attempts)){
+            const arr = data.attempts.map(n => Number(n)||0);
+            this.state.attempts = Array.from({length: TOTAL_LEVELS}, (_, i) => arr[i] || 0);
+          }
+
           if (typeof data.muted === 'boolean') this.state.muted = data.muted;
           if (typeof data.volume === 'number') this.state.volume = Math.min(1, Math.max(0, data.volume));
           if (typeof data.name === 'string') this.el.finalName.value = data.name;
@@ -710,8 +712,8 @@
       },
 
       resetProgress(){
-        this.state.completed = [false,false,false,false,false,false];
-        this.state.attempts = [0,0,0,0,0,0];
+        this.state.completed = Array(TOTAL_LEVELS).fill(false);
+        this.state.attempts = Array(TOTAL_LEVELS).fill(0);
         this.saveState();
         this.syncHubUI();
         this.toast('Прогресс сброшен');
@@ -779,10 +781,10 @@
 
       syncProgressUI(){
         const done = this.state.completed.filter(Boolean).length;
-        const pct = Math.round((done/6)*100);
-        if (this.el.miniProgressText) this.el.miniProgressText.textContent = `${done}/6`;
+        const pct = Math.round((done / TOTAL_LEVELS) * 100);
+        if (this.el.miniProgressText) this.el.miniProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
         if (this.el.miniProgressBar) this.el.miniProgressBar.style.width = pct + '%';
-        if (this.el.hubProgressText) this.el.hubProgressText.textContent = `${done}/6`;
+        if (this.el.hubProgressText) this.el.hubProgressText.textContent = `${done}/${TOTAL_LEVELS}`;
         if (this.el.hubProgressBar) this.el.hubProgressBar.style.width = pct + '%';
       },
 
@@ -793,7 +795,7 @@
           star.classList.toggle('completed', !!done);
         });
 
-        const allDone = this.state.completed.every(Boolean);
+        const allDone = this.state.completed.slice(0, TOTAL_LEVELS).every(Boolean);
         if (allDone) this.el.finalBtn.classList.remove('hidden');
         else this.el.finalBtn.classList.add('hidden');
 
